@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>SeleniumDome</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <sport.version>1.3.0</sport.version>
+        <selenium.version>4.19.1</selenium.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <jsoup.version>1.17.2</jsoup.version>
+        <opencv.version>4.9.0-0</opencv.version>
+        <tess4j.version>5.11.0</tess4j.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- 恒翔聚合服务 -->
+        <dependency>
+            <groupId>com.sipaote</groupId>
+            <artifactId>sport-common</artifactId>
+            <version>${sport.version}</version>
+        </dependency>
+        <!-- 恒翔聚合服务 -->
+        <dependency>
+            <groupId>com.sipaote</groupId>
+            <artifactId>sport-aggre-api</artifactId>
+            <version>${sport.version}</version>
+        </dependency>
+        <!-- 恒翔聚合服务 -->
+        <dependency>
+            <groupId>com.sipaote</groupId>
+            <artifactId>sport-common</artifactId>
+            <version>${sport.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openpnp</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${opencv.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>${tess4j.version}</version>
+        </dependency>
+
+    </dependencies>
+</project>
