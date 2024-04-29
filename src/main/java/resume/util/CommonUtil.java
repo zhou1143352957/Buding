@@ -5,17 +5,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.sipaote.common.constant.StringPoolConstant;
 import com.sipaote.common.validator.ValidatorUtil;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -562,7 +556,7 @@ public class CommonUtil {
         Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);*/
         // 使用 Tesseract 进行文字识别
 
-        Tesseract tesseract = new Tesseract();
+   /*     Tesseract tesseract = new Tesseract();
         // 设置 Tesseract 的数据路径
         tesseract.setDatapath("../java/tessdata");
         tesseract.setLanguage("chi_sim");
@@ -571,7 +565,7 @@ public class CommonUtil {
             System.out.println("识别文本: " + recognizedText);
         } catch (TesseractException e) {
             System.out.println("识别文本时出错: " + e.getMessage());
-        }
+        }*/
     }
 
 
