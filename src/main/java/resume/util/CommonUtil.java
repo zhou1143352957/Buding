@@ -4,15 +4,10 @@ import cn.hutool.core.img.ImgUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.sipaote.common.constant.StringPoolConstant;
+import com.sipaote.common.exception.BusinessException;
 import com.sipaote.common.validator.ValidatorUtil;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.io.IOUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.springframework.http.MediaType;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -469,27 +464,6 @@ public class CommonUtil {
     }
 
     /**
-     * File转MultipartFile
-     *
-     * @param file
-     * @return
-     */
-    public static MultipartFile getMultipartFile(File file) {
-        FileItem item = new DiskFileItemFactory().createItem("file"
-                , MediaType.MULTIPART_FORM_DATA_VALUE
-                , true
-                , file.getName());
-        try (InputStream input = new FileInputStream(file);
-             OutputStream os = item.getOutputStream()) {
-            // 流转移
-            IOUtils.copy(input, os);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid file: " + e, e);
-        }
-        return new CommonsMultipartFile(item);
-    }
-
-    /**
      * 获取范围之内随机数
      */
     public static Long getRandom() {
@@ -520,33 +494,11 @@ public class CommonUtil {
         }
     }
 
-    /**
-     * 使用 Jsoup 解码 HTML 转义的字符串
-     *
-     * @param htmlEscapedString
-     * @return
-     */
-    public static String unescapeHTML(String htmlEscapedString) {
-        return Jsoup.parse(htmlEscapedString).text();
-    }
-
-    /**
-     * 使用 Jsoup 解析页面源代码
-     *
-     * @param htmlTitle html元素标签
-     */
-    public static String specialText(String htmlContent, String htmlTitle) {
-        // 使用 Jsoup 解析页面源代码
-        Document document = Jsoup.parse(htmlContent);
-        // 获取包含特殊字符的元素
-        String specialText = document.select(htmlTitle).text();
-        return specialText;
-    }
 
     /**
      * OpenCV 图片识别文字
      */
-    public static void openCvOCR(String fileUrl) {
+    public static String openCvOCR(String fileUrl) {
         // 加载 OpenCV 库
     /*    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         // 读取图像
@@ -566,6 +518,29 @@ public class CommonUtil {
         } catch (TesseractException e) {
             System.out.println("识别文本时出错: " + e.getMessage());
         }*/
+        try {
+            Tesseract tesseract = new Tesseract();
+            String os = System.getProperty("os.name").toLowerCase();
+            boolean isWindows = os.contains("windows");
+            //如果是win系统
+            //图片路径文件夹
+            if (isWindows) {
+                // 设置 Tesseract 的数据路径
+                tesseract.setDatapath("E:\\Tesseract-OCR\\tessdata");
+            } else {
+                tesseract.setDatapath("");
+            }
+            tesseract.setLanguage("chi_sim");
+            String recognizedText = tesseract.doOCR(new File(fileUrl));
+            recognizedText =  recognizedText.replace("，", "|").replace(" ","");
+            System.out.println("识别文本: " + recognizedText);
+            return recognizedText;
+        } catch (TesseractException e) {
+            System.out.println("识别文本时出错: " + e.getMessage());
+            throw new BusinessException("");
+        }
+
+
     }
 
 

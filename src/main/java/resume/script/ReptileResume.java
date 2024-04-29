@@ -1,6 +1,5 @@
 package resume.script;
 
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -36,7 +35,7 @@ public class ReptileResume {
         Thread.sleep(3000);
 
         //头部筛选框 操作代码
-   //     ReptileResumeSplit.searchItem(driver, accountInfo);
+        //     ReptileResumeSplit.searchItem(driver, accountInfo);
         //临时存取 简历列表的 infoid， seriesid 加入list中
 
         //获取简历列表
@@ -51,18 +50,32 @@ public class ReptileResume {
             new Actions(driver).scrollByAmount(0, 210).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
             WebDriver resumeInfoDriver = driver.switchTo().newWindow(WindowType.TAB);
             resumeInfoDriver.get("https://jianli.58.com/resumedetail/single/" + infoid + "?seriesid=" + seriesid);
-          //  resumeInfoDriver.get("https://jianli.58.com/resumedetail/single/3_netanEtXnEys_EOQnE6slEHpnvtN_eHaTEdQTGZXlEOvTenuneH5Thsvl-NkTEysnErflEyuTvtQ?seriesid=%257B%2522sver%2522%253A%25228%2522%252C%2522slotid%2522%253A%2522pc_rencai_list_hx_rec%2522%252C%2522pid%2522%253A%2522792e04e771cc4b818aceff2fcdadbfeb%2522%252C%2522uuid%2522%253A%252291e284bada77407c8939a7f88e195f09%2522%252C%2522sid%2522%253A%252291e284bada77407c8939a7f88e195f09%2522%257D&nameStyle=1");
             //获取简历信息的 一系列操作】操作
             WebElement name = resumeInfoDriver.findElement(By.id("name"));
 
             WebElement baseDetail = resumeInfoDriver.findElement(By.className("base-detail"));
             //截图
             File scrFile = baseDetail.getScreenshotAs(OutputType.FILE);
-         //   String filePath = "../java/resume/pic/image.png";
-            String filePath = "../java/pic/image.png";
+            String os = System.getProperty("os.name").toLowerCase();
+            boolean isWindows = os.contains("windows");
+            //图片路径文件夹
+            String image;
+            if (isWindows) {
+                image = "E://image";
+            } else {
+                image = "/Users/zhoujie/Desktop";
+            }
+            File folder = new File(image);
+            // 判断文件夹是否存在
+            if (!folder.exists()) {
+                // 如果文件夹不存在，则创建文件夹
+                folder.mkdirs();
+            }
+            String filePath = image + "/image.png";
+            System.out.println("文件路径---" + filePath);
             FileUtils.copyFile(scrFile, new File(filePath));
-            CommonUtil.openCvOCR(filePath);
-
+            Thread.sleep(4000);
+            String resumeSexOrAgeInfo = CommonUtil.openCvOCR(filePath);
             // 获取页面源代码
             String pageSource = resumeInfoDriver.getPageSource();
             // 检查页面源代码中是否包含目标文本  虚拟号码
@@ -72,11 +85,10 @@ public class ReptileResume {
                 //    resumeInfoDriver.close();
                 continue;
             }
-
             //存在虚拟号码
-      //      Api58.getByNameAndBasic(1, name.getText(), null, "");
+            Api58.getByNameAndBasic(1, name.getText(), resumeSexOrAgeInfo.split("|")[0], resumeSexOrAgeInfo);
             //    resumeInfoDriver.close();
-            if (i >= 0){
+            if (i >= 0) {
                 break;
             }
             Thread.sleep(3000);
@@ -84,11 +96,9 @@ public class ReptileResume {
         }
 
 
-        System.out.println(JSONObject.toJSONString(accountInfo));
+        //     System.out.println(JSONObject.toJSONString(accountInfo));
         //  webDriver.close();
     }
-
-
 
 
     /**

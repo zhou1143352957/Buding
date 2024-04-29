@@ -15,12 +15,14 @@ public class Test2 {
 
 
     public static void main(String[] args) {
-         Tesseract tesseract = new Tesseract();
-        // 设置 Tesseract 的数据路径
-        tesseract.setDatapath("../java/tessdata");
-        tesseract.setLanguage("chi_sim");
         try {
-            String recognizedText = tesseract.doOCR(new File("../java/pic/image.png"));
+            Tesseract tesseract = new Tesseract();
+            // 设置 Tesseract 的数据路径
+            tesseract.setDatapath("E:\\Tesseract-OCR\\tessdata");
+            tesseract.setLanguage("chi_sim");
+
+         //   String recognizedText = tesseract.doOCR(new File("C:\\Users\\Administrator\\Desktop\\image.png"));
+            String recognizedText = tesseract.doOCR(new File("E://image/image.png"));
             System.out.println("识别文本: " + recognizedText);
         } catch (TesseractException e) {
             System.out.println("识别文本时出错: " + e.getMessage());
