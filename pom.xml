@@ -35,18 +35,6 @@
             <artifactId>sport-common</artifactId>
             <version>${sport.version}</version>
         </dependency>
-        <!-- 恒翔聚合服务 -->
-       <!-- <dependency>
-            <groupId>com.sipaote</groupId>
-            <artifactId>sport-aggre-api</artifactId>
-            <version>${sport.version}</version>
-        </dependency>-->
-        <!-- 恒翔聚合服务 -->
-      <!--  <dependency>
-            <groupId>com.sipaote</groupId>
-            <artifactId>sport-common</artifactId>
-            <version>${sport.version}</version>
-        </dependency>-->
         <!--<dependency>
             <groupId>org.openpnp</groupId>
             <artifactId>opencv</artifactId>

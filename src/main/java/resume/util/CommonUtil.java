@@ -8,11 +8,17 @@ import com.sipaote.common.exception.BusinessException;
 import com.sipaote.common.validator.ValidatorUtil;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.*;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +28,8 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
 /**
  * 说明
@@ -494,30 +502,45 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * 高斯滤波
+     * 在图像处理中，高斯滤波通常会导致图像的模糊效果，这是因为高斯滤波器的目的之一就是模糊图像以降低图像中的噪声。这种模糊效果是通过对图像中的每个像素及其周围像素进行加权平均来实现的，而权重则是由高斯函数计算得出的。
+     * 高斯滤波的模糊效果受到两个主要因素的影响：
+     * 1. **内核大小（Kernel Size）：**内核大小决定了滤波器的大小，也就是滤波器在图像上移动的区域大小。内核越大，滤波器影响的像素越多，从而导致图像模糊程度增加。
+     * 2. **标准差（Standard Deviation）：**标准差决定了高斯函数的形状，即权重的分布范围。标准差越大，权重分布越广，模糊效果越明显；标准差越小，权重分布越窄，模糊效果越轻微。
+     * 因此，如果你在应用高斯滤波时发现图像变得更模糊了，可能是因为你选择了较大的内核大小或较大的标准差。你可以尝试调整这些参数，以获得更符合你需求的滤波效果。另外，也可以考虑尝试其他的图像处理技术，如中值滤波等，以达到更好的去噪效果。
+     */
+    public static void GaussianBlur(String path) {
+        Mat src = Imgcodecs.imread(path);
+        Mat dst = src.clone();
+        // 定义内核大小和标准差
+        Size kernelSize = new Size(1, 1); // 内核大小为 5x5
+        double sigmaX = 0; // X 方向的标准差（如果设置为0，则从内核大小计算）
+        double sigmaY = 0; // Y 方向的标准差（如果设置为0，则与 sigmaX 相同）
+        Imgproc.GaussianBlur(src, dst, kernelSize, sigmaX, sigmaY, Core.BORDER_DEFAULT);
+        imwrite(path, dst);
+
+
+    }
+
 
     /**
      * OpenCV 图片识别文字
      */
     public static String openCvOCR(String fileUrl) {
-        // 加载 OpenCV 库
-    /*    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+     //   System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        // 加载 OpenCV 本地库
+        System.load("E:\\opencv\\opencv\\build\\java\\x64\\opencv_java490.dll");
         // 读取图像
         Mat image = Imgcodecs.imread(fileUrl);
         // 转换图像为灰度图像
         Mat grayImage = new Mat();
-        Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);*/
+        Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
+        // 保存预处理后的图像
+        String preprocessedFilePath = fileUrl;
+        imwrite(preprocessedFilePath, grayImage);
+        GaussianBlur(preprocessedFilePath);
         // 使用 Tesseract 进行文字识别
-
-   /*     Tesseract tesseract = new Tesseract();
-        // 设置 Tesseract 的数据路径
-        tesseract.setDatapath("../java/tessdata");
-        tesseract.setLanguage("chi_sim");
-        try {
-            String recognizedText = tesseract.doOCR(new File(fileUrl));
-            System.out.println("识别文本: " + recognizedText);
-        } catch (TesseractException e) {
-            System.out.println("识别文本时出错: " + e.getMessage());
-        }*/
         try {
             Tesseract tesseract = new Tesseract();
             String os = System.getProperty("os.name").toLowerCase();
