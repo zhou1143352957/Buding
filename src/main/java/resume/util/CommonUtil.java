@@ -18,7 +18,6 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.*;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.time.*;
 import java.time.format.DateTimeFormatter;

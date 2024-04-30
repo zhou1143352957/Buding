@@ -41,5 +41,10 @@ public interface UrlConstant {
      */
     String PY_BASE_INFO = "/baseinfo";
 
+    /**
+     * python调用保存虚拟号码
+     */
+    String SAVE_VIRTUAL = "/job-admin/virtual-58/saveVirtual";
+
 
 }

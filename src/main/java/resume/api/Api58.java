@@ -4,11 +4,14 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.sipaote.common.api.ResponseInfo;
 import com.sipaote.common.exception.BusinessException;
 import com.sipaote.common.validator.ValidatorUtil;
+import lombok.extern.log4j.Log4j;
 import netscape.javascript.JSObject;
 import resume.config.BaseConfig;
 import resume.config.UrlConstant;
+import resume.entity.dto.Virtual58DTO;
 import resume.entity.dto.VirtualConfig58DTO;
 
 import java.util.HashMap;
@@ -22,6 +25,7 @@ import java.util.Map;
  * @version: 1.0.0
  * Copyright Ⓒ 2022 恒翔 Computer Corporation Limited All rights reserved.
  **/
+@Log4j
 public class Api58 {
 
     /**
@@ -63,9 +67,8 @@ public class Api58 {
         request.body(jsonParam.toJSONString());
         String value = request.execute().body();
         JSONObject jsonObject = JSON.parseObject(value);
-        System.out.println(jsonObject.toJSONString());
         if (!jsonObject.getString("code").equals("200")) {
-            throw new BusinessException(account + "账号 保存每日简历查看数异常；类型：" + type);
+            log.info(account + "账号 保存每日简历查看数异常；类型：" + type);
         }
     }
 
@@ -76,7 +79,7 @@ public class Api58 {
      * @date: 2024/4/26
      * @version: 1.0.0
      */
-    public static void getByNameAndBasic(Integer type, String name, String sex, String basicInfo) {
+    public static ResponseInfo getByNameAndBasic(Integer type, String name, String sex, String basicInfo) {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("type", type);
         jsonParam.put("name", name);
@@ -90,11 +93,8 @@ public class Api58 {
         // 添加请求体（例如JSON数据）
         request.body(jsonParam.toJSONString());
         String body = request.execute().body();
-        JSONObject jsonObject = JSON.parseObject(body);
-        System.out.println(jsonObject.toJSONString());
-        if (!jsonObject.getString("code").equals("200")) {
-            throw new BusinessException("调用校验是否拨打过异常；类型：" + type);
-        }
+        ResponseInfo responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
+        return responseInfo;
     }
 
     /**
@@ -114,6 +114,24 @@ public class Api58 {
         request.body(jsonParam.toJSONString());
         String body = request.execute().body();
         return body;
+    }
+
+
+    /**
+     * @Description: python调用保存虚拟号码
+     * @Author: 周杰
+     * @Date: 2024/4/30 星期二
+     * @version: dev
+     **/
+    public static ResponseInfo saveVirtual(Virtual58DTO virtual58DTO){
+        HttpRequest request = HttpUtil.createPost(BaseConfig.testUrl + UrlConstant.SAVE_VIRTUAL);
+        // 设置请求头
+        request.header("Content-Type", "application/json");
+        // 添加请求体（例如JSON数据）
+        request.body(JSON.toJSONString(virtual58DTO));
+        String body = request.execute().body();
+        ResponseInfo responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
+        return responseInfo;
     }
 
 }

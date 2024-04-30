@@ -31,7 +31,7 @@ public class WebDriverConfig {
         FirefoxOptions options = new FirefoxOptions();
         if (isWindows) {
             myprofile = new FirefoxProfile(new File("C:\\Users\\Administrator\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\9r0wif91.default-release"));
-            options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exes");
+            options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe");
         } else {
             myprofile = new FirefoxProfile(new File("/Users/zhoujie/Library/Application Support/Firefox/Profiles/xgjmfsmz.default-release"));
             options.setBinary("/Applications/Firefox.app/Contents/MacOS/firefox");
