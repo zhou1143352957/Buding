@@ -40,7 +40,7 @@ public class ReptileResume {
             //简历处理部分
             ReptileResumeSplit.resumePart(driver, accountInfo);
 
-            //  webDriver.close();
+            //  driver.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

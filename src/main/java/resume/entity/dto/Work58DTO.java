@@ -55,6 +55,9 @@ public class Work58DTO implements Serializable {
     }
 
     public static void getTextContent(Work58DTO work58DTO, List<WebElement> ps){
+        if (ps.isEmpty()) {
+            return;
+        }
         for (int j = 0; j < ps.size(); j++) {
             WebElement p = ps.get(j);
             String text = p.getText();

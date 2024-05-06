@@ -80,19 +80,15 @@ public class Api58 {
      * @version: 1.0.0
      */
     public static ResponseInfo getByNameAndBasic(Integer type, String name, String sex, String basicInfo) {
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("type", type);
-        jsonParam.put("name", name);
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", type);
+        map.put("name", name);
         if (ValidatorUtil.isNotNull(sex) && !sex.contains("不限")) {
-            jsonParam.put("sex", sex);
+            map.put("sex", sex);
         }
-        jsonParam.put("basicInfo", basicInfo);
-        HttpRequest request = HttpUtil.createPost(BaseConfig.testUrl + UrlConstant.GET_BY_NAME_AND_BASIC);
+        map.put("basicInfo", basicInfo);
+        String body = HttpUtil.get(BaseConfig.testUrl + UrlConstant.GET_BY_NAME_AND_BASIC, map);
         // 设置请求头
-        request.header("Content-Type", "application/json");
-        // 添加请求体（例如JSON数据）
-        request.body(jsonParam.toJSONString());
-        String body = request.execute().body();
         ResponseInfo responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
         return responseInfo;
     }

@@ -513,7 +513,7 @@ public class CommonUtil {
         Mat src = Imgcodecs.imread(path);
         Mat dst = src.clone();
         // 定义内核大小和标准差
-        Size kernelSize = new Size(1, 1); // 内核大小为 5x5
+        Size kernelSize = new Size(3, 3); // 内核大小为 5x5
         double sigmaX = 0; // X 方向的标准差（如果设置为0，则从内核大小计算）
         double sigmaY = 0; // Y 方向的标准差（如果设置为0，则与 sigmaX 相同）
         Imgproc.GaussianBlur(src, dst, kernelSize, sigmaX, sigmaY, Core.BORDER_DEFAULT);
@@ -548,13 +548,15 @@ public class CommonUtil {
             //图片路径文件夹
             if (isWindows) {
                 // 设置 Tesseract 的数据路径
-                tesseract.setDatapath("E:\\Tesseract-OCR\\tessdata");
+                tesseract.setDatapath("E:\\TesseractOCR\\tessdata");
             } else {
                 tesseract.setDatapath("");
             }
             tesseract.setLanguage("chi_sim");
             String recognizedText = tesseract.doOCR(new File(fileUrl));
-            recognizedText =  recognizedText.replace("，", "|").replace(" ","");
+            recognizedText =  recognizedText.replace("，", "|").replace(" ","")
+                    .replace("$", "|").replace("+", "*");
+
             System.out.println("识别文本: " + recognizedText);
             return recognizedText;
         } catch (TesseractException e) {
