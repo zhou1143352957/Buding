@@ -26,20 +26,23 @@ import static java.lang.Thread.sleep;
 public class ReptileResume {
 
     public static void main(String[] args) {
+        WebDriver driver = null;
         try {
             //呼起浏览器操作
-            WebDriver driver = WebDriverConfig.openWebDriver();
+            driver = WebDriverConfig.openWebDriver();
             //获个人账号
             WebElement usernameElement = driver.findElement(By.className("user-name"));
             //获取 58 配置信息
             VirtualConfig58DTO accountInfo = Api58.get58AccountInfo(usernameElement.getText());
             sleep(CommonUtil.getRandomMillisecond());
+            //触发点击事件
+            JavascriptExecutor cateSearchJs = (JavascriptExecutor) driver;
             //头部筛选框 操作代码
-            ReptileResumeSplit.searchItem(driver, accountInfo);
+            ReptileResumeSplit.searchItem(driver, accountInfo, cateSearchJs);
             //简历处理部分
-            while (true){
-                int size = ReptileResumeSplit.resumePart(driver, accountInfo);
-                if (size < 50){
+            while (true) {
+                int size = ReptileResumeSplit.resumePart(driver, accountInfo, cateSearchJs);
+                if (size < 50) {
                     break;
                 }
                 sleep(CommonUtil.getRandomMillisecond());
@@ -57,6 +60,9 @@ public class ReptileResume {
             driver.close();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            assert driver != null;
+            driver.quit();
         }
     }
 

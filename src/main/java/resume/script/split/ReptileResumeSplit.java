@@ -34,105 +34,109 @@ public class ReptileResumeSplit {
     /**
      * 头部筛选框 操作代码
      */
-    public static void searchItem(WebDriver driver, VirtualConfig58DTO accountInfo) {
-        //鼠标移动到类别
-        WebElement cateSearch = driver.findElement(By.className("cate-search"));
-        /*     new Actions(driver).moveToElement(cateSearch, 0 ,0).pause(Duration.ofSeconds(2)).click().perform();*/
-        //触发点击事件
-        JavascriptExecutor cateSearchJs = (JavascriptExecutor) driver;
-        cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getJobCate() + "')[0].click()", cateSearch);
-        List<WebElement> searchItem = driver.findElements(By.className("search-item"));
-        int hdy = 30 * 10;
-        for (int i = 0; i < searchItem.size(); i++) {
-            WebElement topPlement = searchItem.get(i);
-            //城市
-            if (i == 0) {
-                //点击触发下拉框
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                new Actions(driver).moveByOffset(-20, 30 * 2).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
-                new Actions(driver).moveByOffset(-20, 30 * 5).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
-                //鼠标移动到滑动区域
-                WebElement cityChecker = topPlement.findElement(By.className("tab-city"));
-                new Actions(driver).pause(Duration.ofSeconds(2)).moveToElement(cityChecker).perform();
-                WheelInput.ScrollOrigin scrollOrigin = WheelInput.ScrollOrigin.fromElement(cityChecker);
-                new Actions(driver).moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                new Actions(driver).moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy * 2).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getCity() + "')[0].click()", cityChecker);
-                continue;
-            }
-            //区域
-            if (i == 1) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                WebElement tabArea = topPlement.findElement(By.className("tab-area"));
-                cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getArea() + "')[0].click()", tabArea);
-                continue;
-            }
-            //商圈
-            if (i == 2) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                continue;
-            }
-            //性别
-            if (i == 3) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                List<WebElement> searchList = topPlement.findElements(By.className("list-item"));
-                for (int j = 0; j < searchList.size(); j++) {
-                    WebElement listItem = searchList.get(j);
-                    if (listItem.getText().contains(accountInfo.getSex())) {
-                        new Actions(driver).moveToElement(listItem).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                        break;
-                    }
-                }
-            }
-            //年龄
-            if (i == 4) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                List<WebElement> searchList = topPlement.findElements(By.className("list-item"));
-                //直接取最后自定义
-                WebElement lastItem = searchList.get(searchList.size() - 1);
-                new Actions(driver).moveToElement(lastItem).perform();
-                //获取 两个输入框。然后输入年龄
-                List<WebElement> antInputs = lastItem.findElements(By.className("ant-input"));
-                //最小年龄
-                new Actions(driver).sendKeys(antInputs.get(0), accountInfo.getAgeMin().toString()).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                //最大年龄
-                new Actions(driver).sendKeys(antInputs.get(1), accountInfo.getAgeMax().toString()).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                //确定
-                WebElement button = lastItem.findElement(By.tagName("button"));
-                new Actions(driver).click(button).perform();
-                continue;
-            }
-            //学历
-            if (i == 5) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
-                WebElement itemList = topPlement.findElement(By.className("list-item"));
-                //不限
-                if (itemList.getText().contains(accountInfo.getEducation())) {
-                    new Actions(driver).pause(Duration.ofSeconds(1)).click(itemList).perform();
+    public static void searchItem(WebDriver driver, VirtualConfig58DTO accountInfo, JavascriptExecutor cateSearchJs) {
+        try {
+            //鼠标移动到类别
+            WebElement cateSearch = driver.findElement(By.className("cate-search"));
+            /*     new Actions(driver).moveToElement(cateSearch, 0 ,0).pause(Duration.ofSeconds(2)).click().perform();*/
+            cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getJobCate() + "')[0].click()", cateSearch);
+            List<WebElement> searchItem = driver.findElements(By.className("search-item"));
+            Actions actions = new Actions(driver);
+            int hdy = 30 * 10;
+            for (int i = 0; i < searchItem.size(); i++) {
+                WebElement topPlement = searchItem.get(i);
+                //城市
+                if (i == 0) {
+                    //点击触发下拉框
+                    actions.moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    actions.moveByOffset(-20, 30 * 2).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+                    actions.moveByOffset(-20, 30 * 5).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+                    //鼠标移动到滑动区域
+                    WebElement cityChecker = topPlement.findElement(By.className("tab-city"));
+                    actions.pause(Duration.ofSeconds(2)).moveToElement(cityChecker).perform();
+                    WheelInput.ScrollOrigin scrollOrigin = WheelInput.ScrollOrigin.fromElement(cityChecker);
+                    actions.moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    actions.moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy * 2).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getCity() + "')[0].click()", cityChecker);
                     continue;
                 }
-                String[] educations = accountInfo.getEducation().split(",");
-                List<WebElement> checkboxList = topPlement.findElements(By.className("ant-checkbox-group-item"));
-                for (int j = 0; j < educations.length; j++) {
-                    String education = educations[j];
-                    //top头学历列表循环比对
-                    for (int k = 0; k < checkboxList.size(); k++) {
-                        WebElement checkBox = checkboxList.get(k);
-                        if (!checkBox.getText().contains(education)) {
-                            continue;
+                //区域
+                if (i == 1) {
+                    actions.moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    WebElement tabArea = topPlement.findElement(By.className("tab-area"));
+                    cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getArea() + "')[0].click()", tabArea);
+                    continue;
+                }
+                //商圈
+                if (i == 2) {
+                    actions.moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    continue;
+                }
+                //性别
+                if (i == 3) {
+                    actions.moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    List<WebElement> searchList = topPlement.findElements(By.className("list-item"));
+                    for (int j = 0; j < searchList.size(); j++) {
+                        WebElement listItem = searchList.get(j);
+                        if (listItem.getText().contains(accountInfo.getSex())) {
+                            actions.moveToElement(listItem).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                            break;
                         }
-                        WebElement boxInput = checkBox.findElement(By.tagName("input"));
-                        new Actions(driver).pause(Duration.ofSeconds(CommonUtil.getRandom())).click(boxInput).perform();
-                        break;
                     }
                 }
-                //确定
-                WebElement button = topPlement.findElement(By.tagName("button"));
-                new Actions(driver).pause(Duration.ofSeconds(CommonUtil.getRandom())).click(button).perform();
+                //年龄
+                if (i == 4) {
+                    actions.moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    List<WebElement> searchList = topPlement.findElements(By.className("list-item"));
+                    //直接取最后自定义
+                    WebElement lastItem = searchList.get(searchList.size() - 1);
+                    actions.moveToElement(lastItem).perform();
+                    //获取 两个输入框。然后输入年龄
+                    List<WebElement> antInputs = lastItem.findElements(By.className("ant-input"));
+                    //最小年龄
+                    actions.sendKeys(antInputs.get(0), accountInfo.getAgeMin().toString()).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    //最大年龄
+                    actions.sendKeys(antInputs.get(1), accountInfo.getAgeMax().toString()).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    //确定
+                    WebElement button = lastItem.findElement(By.tagName("button"));
+                    actions.click(button).perform();
+                    continue;
+                }
+                //学历
+                if (i == 5) {
+                    actions.moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                    WebElement itemList = topPlement.findElement(By.className("list-item"));
+                    //不限
+                    if (itemList.getText().contains(accountInfo.getEducation())) {
+                        actions.pause(Duration.ofSeconds(1)).click(itemList).perform();
+                        continue;
+                    }
+                    String[] educations = accountInfo.getEducation().split(",");
+                    List<WebElement> checkboxList = topPlement.findElements(By.className("ant-checkbox-group-item"));
+                    for (int j = 0; j < educations.length; j++) {
+                        String education = educations[j];
+                        //top头学历列表循环比对
+                        for (int k = 0; k < checkboxList.size(); k++) {
+                            WebElement checkBox = checkboxList.get(k);
+                            if (!checkBox.getText().contains(education)) {
+                                continue;
+                            }
+                            WebElement boxInput = checkBox.findElement(By.tagName("input"));
+                            actions.pause(Duration.ofSeconds(CommonUtil.getRandom())).click(boxInput).perform();
+                            break;
+                        }
+                    }
+                    //确定
+                    WebElement button = topPlement.findElement(By.tagName("button"));
+                    actions.pause(Duration.ofSeconds(CommonUtil.getRandom())).click(button).perform();
+                }
+                if (i >= 5) {
+                    break;
+                }
             }
-            if (i >= 5) {
-                break;
-            }
+            sleep(CommonUtil.getRandomMillisecond());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -143,16 +147,16 @@ public class ReptileResumeSplit {
      * @Date: 2024/4/30 星期二
      * @version: dev
      **/
-    public static Integer resumePart(WebDriver driver, VirtualConfig58DTO accountInfo) throws Exception {
+    public static Integer resumePart(WebDriver driver, VirtualConfig58DTO accountInfo, JavascriptExecutor driverJs) throws Exception {
         //主窗口手柄
         String windowHandle = driver.getWindowHandle();
         //获取简历列表
         List<WebElement> resumeList = driver.findElements(By.className("resume-item"));
-        if (resumeList.isEmpty()){
+        if (resumeList.isEmpty()) {
             return 0;
         }
         List<ResumeItemDTO> resumeItemDTOS = new ArrayList<>();
-        JavascriptExecutor driverJs = (JavascriptExecutor) driver;
+        //    JavascriptExecutor driverJs = (JavascriptExecutor) driver;
         //关闭聊天样式
         driverJs.executeScript("document.querySelector('.t-im-bottom-window-count-container').style.display = 'none';");
         Actions actions = new Actions(driver);
@@ -174,11 +178,11 @@ public class ReptileResumeSplit {
                 WebElement hoverResumeBottom = resumeItem.findElement(By.className("hover-resume-bottom"));
                 sb.append(hoverResumeBottom.getText());
             }
+            driverJs.executeScript("arguments[0].style.display = 'none'", hoverResume);
             driverJs.executeScript("arguments[0].classList.remove('resume-bottom')", hoverResume);
-            driverJs.executeScript("arguments[0].style.display = ''", hoverResume);
             //通过api接口判断该简历有没有打过电话
             String extraInfo = sb.toString().replace(" ", "");
-           // log.info("个人附加信息-----" + extraInfo);
+            // log.info("个人附加信息-----" + extraInfo);
             System.out.println("个人附加信息-----" + extraInfo);
             resumeItemDTOS.add(new ResumeItemDTO(resumeItem.getAttribute("infoid"), resumeItem.getAttribute("seriesid"), extraInfo));
         }
@@ -201,7 +205,6 @@ public class ReptileResumeSplit {
             String url = "https://jianli.58.com/resumedetail/single/" + infoid + "?seriesid=" + seriesid;
             resumeInfoDriver.get(url);
             //获取简历信息的 一系列操作】操作
-
             // 获取页面源代码
             String pageSource = resumeInfoDriver.getPageSource();
             // 检查页面源代码中是否包含目标文本  虚拟号码
@@ -223,7 +226,15 @@ public class ReptileResumeSplit {
             //存在虚拟号码
             String sex = resumeSexOrAgeInfo.split("|")[0];
             WebElement name = resumeInfoDriver.findElement(By.id("name"));
-            var byNameAndBasic = Api58.getByNameAndBasic(1, name.getText(), sex.equals('男') || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
+            //判断名字里面是否有加密字体
+            String resumeName = name.getText();
+            Boolean isChinese = CommonUtil.isChinese(name.getText());
+            //字符串中有不是中文的字符
+            if (isChinese){
+                File nameFile = name.getScreenshotAs(OutputType.FILE);
+                resumeName = CommonUtil.openCvOCR(imageUrl("resumeName.png", nameFile));
+            }
+            var byNameAndBasic = Api58.getByNameAndBasic(1, resumeName, sex.equals('男') || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
             if (!byNameAndBasic.isSuccess()) {
                 log.info("调用校验是否拨打过异常；类型：" + 1);
                 // 切换回主窗口
@@ -232,14 +243,14 @@ public class ReptileResumeSplit {
                 driver.switchTo().window(windowHandle);
                 continue;
             }
+            sleep(CommonUtil.getRandomMillisecond());
             //未拨打过保存虚拟号
-            saveResumeInfo(resumeInfoDriver, name.getText(), accountInfo.getAccount(), resumeSexOrAgeInfo, url, pageSource, resumeInfo.getExtraInfo());
+            saveResumeInfo(resumeInfoDriver, resumeName, accountInfo.getAccount(), resumeSexOrAgeInfo, url, pageSource, resumeInfo.getExtraInfo());
             // 切换回主窗口
             sleep(9000);
             resumeInfoDriver.close();
             driver.switchTo().window(windowHandle);
         }
-
         return resumeList.size();
     }
 
@@ -255,12 +266,11 @@ public class ReptileResumeSplit {
      * @version: dev
      **/
     public static void saveResumeInfo(WebDriver resumeInfoDriver, String name, String accountName, String resumeSexOrAgeInfo, String url, String pageSource, String extraInfo) throws InterruptedException {
-        sleep(CommonUtil.getRandomMillisecond());
         String windowResumeInfoHandle = resumeInfoDriver.getWindowHandle();
         Virtual58DTO dto = new Virtual58DTO();
         dto.setType(1);
         String[] infoText = resumeSexOrAgeInfo.split("|");
-        dto.setSex(infoText[0].equals('男') || infoText[0].equals("女") ? infoText[0] : null);
+        dto.setSex(infoText[0].equals("男") || infoText[0].equals("女") ? infoText[0] : null);
         dto.setBasicInfo(resumeSexOrAgeInfo);
         //部分隐藏的真实号码
         if (pageSource.contains("获取通话密号")) {
@@ -275,7 +285,7 @@ public class ReptileResumeSplit {
         WebElement expectInfo = resumeInfoDriver.findElement(By.className("expectInfo"));
         WebElement stoneFont = expectInfo.findElement(By.className("stonefont"));
         String expectSalaryText = "面议";
-        if (!stoneFont.getText().contains("面议")){
+        if (!stoneFont.getText().contains("面议")) {
             File stoneFontFile = stoneFont.getScreenshotAs(OutputType.FILE);
             expectSalaryText = CommonUtil.openCvOCR(imageUrl("expectSalary.png", stoneFontFile));
             if (expectSalaryText.contains(":")) {
@@ -287,7 +297,7 @@ public class ReptileResumeSplit {
         by58DTO.setExpectSalary(expectSalaryText);
         //期望职位
         WebElement expectJob = expectInfo.findElement(By.id("expectJob"));
-        by58DTO.setExpectLocation(expectJob.getText());
+        by58DTO.setExpectJob(expectJob.getText());
         //期望地区
         WebElement expectLocation = expectInfo.findElement(By.id("expectLocation"));
         by58DTO.setExpectLocation(expectLocation.getText());
@@ -306,7 +316,7 @@ public class ReptileResumeSplit {
             work58DTO.setCompany(company.isDisplayed() ? company.getText() : StringPoolConstant.EMPTY);
             List<WebElement> ps = experienceDetail.findElements(By.tagName("p"));
             Work58DTO.getTextContent(work58DTO, ps);
-            if (!experienceDetail.findElements(By.className("item-content")).isEmpty()){
+            if (!experienceDetail.findElements(By.className("item-content")).isEmpty()) {
                 work58DTO.setDuty(experienceDetail.findElement(By.className("item-content")).getText());
             }
             work58DTOList.add(work58DTO);
@@ -341,6 +351,7 @@ public class ReptileResumeSplit {
             new Actions(resumeInfoDriver).moveToElement(getSecretNumBtn).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
         }
         List<WebElement> boxList = resumeInfoDriver.findElements(By.id("_58MessageBoxFrame"));
+        sleep(CommonUtil.getRandomMillisecond());
         //如果有弹框 点击
         if (!boxList.isEmpty()) {
             System.out.println("如果有弹框 点击:" + boxList.size());
@@ -348,12 +359,12 @@ public class ReptileResumeSplit {
             //如果您的框架或iframe具有id或名称属性，则可以改用这个属性。如果页面上的名称或ID不是唯一的，那么第一个找到的将被切换到。
             WebDriver messageBoxFrameDriver = resumeInfoDriver.switchTo().frame("_58MessageBoxFrame");
             messageBoxFrameDriver.findElement(By.id("btn_ok2")).click();
-         //   new Actions(messageBoxFrameDriver).moveToElement(messageBoxFrameDriver.findElement(By.id("btn_ok2"))).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+            //   new Actions(messageBoxFrameDriver).moveToElement(messageBoxFrameDriver.findElement(By.id("btn_ok2"))).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
             System.out.println("已经点过了");
             sleep(CommonUtil.getRandomMillisecond());
             //切换到简历详情页面
             resumeInfoDriver.switchTo().window(windowResumeInfoHandle);
-            sleep(CommonUtil.getRandomMillisecond());
+            sleep(CommonUtil.getRandomMillisecond(11, 18));
         }
         //获取虚拟号码位置截图 OCR识别
         WebElement telephone = resumeInfoDriver.findElement(By.className("telephone"));
@@ -375,7 +386,6 @@ public class ReptileResumeSplit {
         if (!responseInfo.isSuccess()) {
             log.error(responseInfo.getMsg());
         }
-
     }
 
 

@@ -497,6 +497,16 @@ public class CommonUtil {
         return ThreadLocalRandom.current().nextLong(4, 9) * 1000;
     }
 
+    /**
+     * 判断字符串里面有不是中文
+     * @return true 有不是中文的字符串 false 都是中文
+     */
+    public static Boolean isChinese(String content){
+        // 使用正则表达式匹配非汉字字符
+        content = content.replace(" ", "");
+        return content.matches(".*[^\\u4E00-\\u9FA5]+.*");
+    }
+
 
     /**
      * 解码 URL 编码的字符串
