@@ -124,8 +124,11 @@ public class Api58 {
         // 设置请求头
         request.header("Content-Type", "application/json");
         // 添加请求体（例如JSON数据）
-        request.body(JSON.toJSONString(virtual58DTO));
+        String jsonString = JSON.toJSONString(virtual58DTO);
+        System.out.println("调用保存虚拟号码基本信息: " + jsonString);
+        request.body(jsonString);
         String body = request.execute().body();
+        System.out.println("保存虚拟号码基本信息返回body: " + body);
         ResponseInfo responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
         return responseInfo;
     }
