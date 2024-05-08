@@ -22,7 +22,7 @@ public class Test2 {
 
 
     public static void main(String[] args) {
-        String fileUrl = "E:\\image\\image.png";
+        String fileUrl = "E:\\image\\expectSalary.png";
         // 加载 OpenCV 本地库
         System.load("E:\\opencv\\opencv\\build\\java\\x64\\opencv_java490.dll");
         // 读取图像

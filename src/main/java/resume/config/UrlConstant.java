@@ -46,5 +46,14 @@ public interface UrlConstant {
      */
     String SAVE_VIRTUAL = "/job-admin/virtual-58/saveVirtual";
 
+    /**
+     * python调用校验是否拨打过（根据列表附加内容） get
+     * @param extraInfo 附加信息 （想找：徐州鼓楼|后厨杂工|面议擅长沟通1-3年后厨经验期望的福利有朝九晚五、双休、有五险一金、离家近、长期稳定。）
+     */
+    String GET_BY_EXTRA_INFO = "/job-admin/virtual-58/getVirtual";
+
+
+
+
 
 }

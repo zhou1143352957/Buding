@@ -3,7 +3,6 @@ package resume.script.split;
 import com.alibaba.fastjson.JSON;
 import com.sipaote.common.api.ResponseInfo;
 import com.sipaote.common.constant.StringPoolConstant;
-import com.sipaote.common.exception.BusinessException;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
@@ -18,6 +17,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 /**
  * 58简历爬虫拆分代码
@@ -142,34 +143,75 @@ public class ReptileResumeSplit {
      * @Date: 2024/4/30 星期二
      * @version: dev
      **/
-    public static void resumePart(WebDriver driver, VirtualConfig58DTO accountInfo) throws Exception {
+    public static Integer resumePart(WebDriver driver, VirtualConfig58DTO accountInfo) throws Exception {
+        //主窗口手柄
+        String windowHandle = driver.getWindowHandle();
         //获取简历列表
         List<WebElement> resumeList = driver.findElements(By.className("resume-item"));
-        System.out.println(resumeList.size());
+        if (resumeList.isEmpty()){
+            return 0;
+        }
+        List<ResumeItemDTO> resumeItemDTOS = new ArrayList<>();
+        JavascriptExecutor driverJs = (JavascriptExecutor) driver;
+        //关闭聊天样式
+        driverJs.executeScript("document.querySelector('.t-im-bottom-window-count-container').style.display = 'none';");
+        Actions actions = new Actions(driver);
         for (int i = 0; i < resumeList.size(); i++) {
-            WebElement resumeInfo = resumeList.get(i);
-            if(!resumeInfo.isDisplayed()){
-                System.out.println("元素不存在------" + resumeInfo.getText());
-                continue;
+            WebElement resumeItem = resumeList.get(i);
+            StringBuilder sb = new StringBuilder();
+            //获取想找的信息
+            WebElement resumeWanted = resumeItem.findElement(By.className("resume-wanted"));
+            sb.append(resumeWanted.getText());
+
+            WebElement hoverResume = resumeItem.findElement(By.className("hover-resume"));
+            //鼠标悬停在元素上触发 hover-resume 元素展示
+            //  actions.moveToElement(hoverResume).perform();
+            driverJs.executeScript("arguments[0].classList.add('resume-bottom')", hoverResume);
+            // 或者使用 JavaScript 直接设置元素的 style 属性
+            driverJs.executeScript("arguments[0].style.display = 'block'", hoverResume);
+            //     Thread.sleep(2000);// 等待
+            if (!resumeItem.findElements(By.className("hover-resume-bottom")).isEmpty()) {
+                WebElement hoverResumeBottom = resumeItem.findElement(By.className("hover-resume-bottom"));
+                sb.append(hoverResumeBottom.getText());
             }
-            String infoid = resumeInfo.getAttribute("infoid");
-            String seriesid = resumeInfo.getAttribute("seriesid");
-            new Actions(driver).moveToElement(resumeInfo).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+            driverJs.executeScript("arguments[0].classList.remove('resume-bottom')", hoverResume);
+            driverJs.executeScript("arguments[0].style.display = ''", hoverResume);
+            //通过api接口判断该简历有没有打过电话
+            String extraInfo = sb.toString().replace(" ", "");
+           // log.info("个人附加信息-----" + extraInfo);
+            System.out.println("个人附加信息-----" + extraInfo);
+            resumeItemDTOS.add(new ResumeItemDTO(resumeItem.getAttribute("infoid"), resumeItem.getAttribute("seriesid"), extraInfo));
+        }
+       /* resumeItemDTOS.add(new ResumeItemDTO("3_neOp_enXTvmaTeH5Tey5lEHpnvtN_eHaTEdQTGZXlEOvTGnQnGdpTpsvl-NkTEysnErflEyaTe65",
+                "%257B%2522sver%2522%253A%25228%2522%252C%2522slotid%2522%253A%2522pc_rencai_list_hx_rec%2522%252C%2522pid%2522%253A%252219005aca1fdc411cb929beb25ec" +
+                        "df5e3%2522%252C%2522uuid%2522%253A%252296783e6e81f14c99ba72e01ae4de8715%2522%252C%2522sid%2522%253A%252296783e6e81f14c99ba72e01ae4de8715%2522%257D", ""));*/
+        for (int i = 0; i < resumeItemDTOS.size(); i++) {
+            ResumeItemDTO resumeInfo = resumeItemDTOS.get(i);
+             /*  var responseInfo = Api58.getVirtual(extraInfo);
+            if (!responseInfo.isSuccess()) {
+                log.error(responseInfo.getMsg());
+                continue;
+            }*/
+            String infoid = resumeInfo.getInfoId();
+            String seriesid = resumeInfo.getSeriesId();
             //整个页面回到原点 顺着 y轴 滑动
-            new Actions(driver).scrollByAmount(0, 210).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+            actions.scrollByAmount(0, i == 0 ? 210 : 120).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
             WebDriver resumeInfoDriver = driver.switchTo().newWindow(WindowType.TAB);
             JavascriptExecutor resumeInfoDriverJs = (JavascriptExecutor) resumeInfoDriver;
-            resumeInfoDriver.get("https://jianli.58.com/resumedetail/single/" + infoid + "?seriesid=" + seriesid);
+            String url = "https://jianli.58.com/resumedetail/single/" + infoid + "?seriesid=" + seriesid;
+            resumeInfoDriver.get(url);
             //获取简历信息的 一系列操作】操作
 
             // 获取页面源代码
             String pageSource = resumeInfoDriver.getPageSource();
             // 检查页面源代码中是否包含目标文本  虚拟号码
-            if (!pageSource.contains("获取通话密号")) {
+            if (!pageSource.contains("通话密号")) {
                 Api58.saveResumeCount(accountInfo.getAccount(), 1);
-                System.out.println("页面中|不包含|目标文本：获取通话密号");
+                System.out.println("页面中|不包含|目标文本：获取通话密号/通话密号");
+                // 切换回主窗口
+                sleep(CommonUtil.getRandomMillisecond());
                 resumeInfoDriver.close();
-                Thread.sleep(3000);
+                driver.switchTo().window(windowHandle);
                 continue;
             }
             WebElement baseDetail = resumeInfoDriver.findElement(By.className("base-detail"));
@@ -181,20 +223,24 @@ public class ReptileResumeSplit {
             //存在虚拟号码
             String sex = resumeSexOrAgeInfo.split("|")[0];
             WebElement name = resumeInfoDriver.findElement(By.id("name"));
-            ResponseInfo byNameAndBasic = Api58.getByNameAndBasic(1, name.getText(), sex.equals('男') || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
+            var byNameAndBasic = Api58.getByNameAndBasic(1, name.getText(), sex.equals('男') || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
             if (!byNameAndBasic.isSuccess()) {
                 log.info("调用校验是否拨打过异常；类型：" + 1);
+                // 切换回主窗口
+                sleep(CommonUtil.getRandomMillisecond());
                 resumeInfoDriver.close();
-                Thread.sleep(3000);
+                driver.switchTo().window(windowHandle);
                 continue;
             }
             //未拨打过保存虚拟号
-            saveResumeInfo(resumeInfoDriver, name.getText(), accountInfo.getAccount(), resumeSexOrAgeInfo);
-            Thread.sleep(3000);
+            saveResumeInfo(resumeInfoDriver, name.getText(), accountInfo.getAccount(), resumeSexOrAgeInfo, url, pageSource, resumeInfo.getExtraInfo());
+            // 切换回主窗口
+            sleep(9000);
             resumeInfoDriver.close();
-            Thread.sleep(3000);
-
+            driver.switchTo().window(windowHandle);
         }
+
+        return resumeList.size();
     }
 
     /**
@@ -202,32 +248,40 @@ public class ReptileResumeSplit {
      * @param name               简历名称
      * @param accountName        58登录账号名称
      * @param resumeSexOrAgeInfo 男|27岁|高中以下1-3年工作经验
+     * @param extraInfo          附加信息
      * @Description: 保存虚拟号以及简历的一些基本信息
      * @Author: 周杰
      * @Date: 2024/4/30 星期二
      * @version: dev
      **/
-    public static void saveResumeInfo(WebDriver resumeInfoDriver, String name, String accountName, String resumeSexOrAgeInfo) {
+    public static void saveResumeInfo(WebDriver resumeInfoDriver, String name, String accountName, String resumeSexOrAgeInfo, String url, String pageSource, String extraInfo) throws InterruptedException {
+        sleep(CommonUtil.getRandomMillisecond());
+        String windowResumeInfoHandle = resumeInfoDriver.getWindowHandle();
         Virtual58DTO dto = new Virtual58DTO();
         dto.setType(1);
         String[] infoText = resumeSexOrAgeInfo.split("|");
         dto.setSex(infoText[0].equals('男') || infoText[0].equals("女") ? infoText[0] : null);
         dto.setBasicInfo(resumeSexOrAgeInfo);
         //部分隐藏的真实号码
-        WebElement telPwd = resumeInfoDriver.findElement(By.className("tel-pwd"));
-        File telPwdFile = telPwd.getScreenshotAs(OutputType.FILE);
-        String telPwdText = CommonUtil.openCvOCR(imageUrl("telPwd.png", telPwdFile));
-        dto.setRealNum(telPwdText);
+        if (pageSource.contains("获取通话密号")) {
+            WebElement telPwd = resumeInfoDriver.findElement(By.className("tel-pwd"));
+            File telPwdFile = telPwd.getScreenshotAs(OutputType.FILE);
+            String telPwdText = CommonUtil.openCvOCR(imageUrl("telPwd.png", telPwdFile));
+            dto.setRealNum(telPwdText);
+        }
         //处理简历内容
         ResumeContentBy58DTO by58DTO = new ResumeContentBy58DTO();
         //工资 stonefont
         WebElement expectInfo = resumeInfoDriver.findElement(By.className("expectInfo"));
         WebElement stoneFont = expectInfo.findElement(By.className("stonefont"));
-        File stoneFontFile = stoneFont.getScreenshotAs(OutputType.FILE);
-        String expectSalaryText = CommonUtil.openCvOCR(imageUrl("expectSalary.png", stoneFontFile));
-        if (expectSalaryText.contains(":")) {
-            int index = expectSalaryText.indexOf(":");
-            expectSalaryText = expectSalaryText.substring(index + 1);
+        String expectSalaryText = "面议";
+        if (!stoneFont.getText().contains("面议")){
+            File stoneFontFile = stoneFont.getScreenshotAs(OutputType.FILE);
+            expectSalaryText = CommonUtil.openCvOCR(imageUrl("expectSalary.png", stoneFontFile));
+            if (expectSalaryText.contains(":")) {
+                int index = expectSalaryText.indexOf(":");
+                expectSalaryText = expectSalaryText.substring(index + 1);
+            }
         }
         System.out.println("期望薪资:" + expectSalaryText);
         by58DTO.setExpectSalary(expectSalaryText);
@@ -252,29 +306,72 @@ public class ReptileResumeSplit {
             work58DTO.setCompany(company.isDisplayed() ? company.getText() : StringPoolConstant.EMPTY);
             List<WebElement> ps = experienceDetail.findElements(By.tagName("p"));
             Work58DTO.getTextContent(work58DTO, ps);
-            WebElement duty = experienceDetail.findElement(By.className("item-content"));
-            work58DTO.setDuty(duty.isDisplayed() ? duty.getText() : StringPoolConstant.EMPTY);
+            if (!experienceDetail.findElements(By.className("item-content")).isEmpty()){
+                work58DTO.setDuty(experienceDetail.findElement(By.className("item-content")).getText());
+            }
             work58DTOList.add(work58DTO);
         }
         by58DTO.setWork(JSON.toJSONString(work58DTOList));
         //学历
-        List<EducationDTO> educationDTOList = new ArrayList<>();
-        List<WebElement> educations = resumeInfoDriver.findElements(By.className("edu-detail"));
-        for (int i = 0; i < educations.size(); i++) {
-            WebElement educationDetail = educations.get(i);
-            EducationDTO educationDTO = new EducationDTO();
-            educationDTO.setCollegeName(educationDetail.findElement(By.className("college-name")).getText());
-            educationDTO.setGraduateTime(educationDetail.findElement(By.className("graduate-time")).getText());
-            educationDTO.setProfessional(educationDetail.findElement(By.className("professional")).getText());
-            educationDTOList.add(educationDTO);
+        List<WebElement> educationList = resumeInfoDriver.findElements(By.className("education"));
+        if (!educationList.isEmpty()) {
+            WebElement education = educationList.get(0);
+            List<EducationDTO> educationDTOList = new ArrayList<>();
+            List<WebElement> educations = education.findElements(By.className("edu-detail"));
+            for (int i = 0; i < educations.size(); i++) {
+                WebElement educationDetail = educations.get(i);
+                EducationDTO educationDTO = new EducationDTO();
+                educationDTO.setCollegeName(educationDetail.findElement(By.className("college-name")).getText());
+                educationDTO.setGraduateTime(educationDetail.findElement(By.className("graduate-time")).getText());
+                educationDTO.setProfessional(educationDetail.findElement(By.className("professional")).getText());
+                educationDTOList.add(educationDTO);
+            }
+            by58DTO.setEducation(JSON.toJSONString(educationDTOList));
         }
-        by58DTO.setEducation(JSON.toJSONString(educationDTOList));
         //自我介绍
-        WebElement eduDetail = resumeInfoDriver.findElement(By.className("edu-detail"));
-        by58DTO.setAboutMe(eduDetail.isDisplayed() ? eduDetail.getText() : StringPoolConstant.EMPTY);
+        WebElement aboutMe = resumeInfoDriver.findElement(By.xpath("/html/body/div[2]/div[1]/div/div[5]"));
+        if (!aboutMe.findElements(By.className("edu-detail")).isEmpty()) {
+            WebElement aboutMeDetail = aboutMe.findElement(By.className("edu-detail"));
+            by58DTO.setAboutMe(aboutMeDetail.isEnabled() && aboutMeDetail.isDisplayed() ? aboutMeDetail.getText() : StringPoolConstant.EMPTY);
+        }
         dto.setContent(JSON.toJSONString(by58DTO));
-
-        ResponseInfo responseInfo = Api58.saveVirtual(dto);
+        //获取虚拟号
+        if (!resumeInfoDriver.findElements(By.className("getSecret-btn")).isEmpty()) {
+            WebElement getSecretNumBtn = resumeInfoDriver.findElement(By.className("getSecret-btn"));
+            new Actions(resumeInfoDriver).moveToElement(getSecretNumBtn).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+        }
+        List<WebElement> boxList = resumeInfoDriver.findElements(By.id("_58MessageBoxFrame"));
+        //如果有弹框 点击
+        if (!boxList.isEmpty()) {
+            System.out.println("如果有弹框 点击:" + boxList.size());
+            sleep(CommonUtil.getRandomMillisecond());
+            //如果您的框架或iframe具有id或名称属性，则可以改用这个属性。如果页面上的名称或ID不是唯一的，那么第一个找到的将被切换到。
+            WebDriver messageBoxFrameDriver = resumeInfoDriver.switchTo().frame("_58MessageBoxFrame");
+            messageBoxFrameDriver.findElement(By.id("btn_ok2")).click();
+         //   new Actions(messageBoxFrameDriver).moveToElement(messageBoxFrameDriver.findElement(By.id("btn_ok2"))).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+            System.out.println("已经点过了");
+            sleep(CommonUtil.getRandomMillisecond());
+            //切换到简历详情页面
+            resumeInfoDriver.switchTo().window(windowResumeInfoHandle);
+            sleep(CommonUtil.getRandomMillisecond());
+        }
+        //获取虚拟号码位置截图 OCR识别
+        WebElement telephone = resumeInfoDriver.findElement(By.className("telephone"));
+        WebElement secretNum = telephone.findElement(By.className("secretNum"));
+        WebElement virtualTelPwd = secretNum.findElement(By.className("tel-pwd"));
+        File secretFile = virtualTelPwd.getScreenshotAs(OutputType.FILE);
+        String virtualTelPath = imageUrl("virtualTel.png", secretFile);
+        String virtualTel = CommonUtil.openCvOCR(virtualTelPath);
+        dto.setVirtualTel(virtualTel);
+        dto.setName(name);
+        dto.setAccountName(accountName);
+        //获取失效时间
+        WebElement failTimeEm = resumeInfoDriver.findElement(By.className("failTime-em"));
+        dto.setExpireTime(failTimeEm.getText());
+        //跳转链接
+        dto.setUrl(url);
+        dto.setExtraInfo(extraInfo);
+        var responseInfo = Api58.saveVirtual(dto);
         if (!responseInfo.isSuccess()) {
             log.error(responseInfo.getMsg());
         }

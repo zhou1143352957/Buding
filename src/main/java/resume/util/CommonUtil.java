@@ -484,6 +484,19 @@ public class CommonUtil {
         return ThreadLocalRandom.current().nextLong(start, end);
     }
 
+    /**
+     * 随机范围之内毫秒
+     */
+    public static Long getRandomMillisecond(long start, long end) {
+        return ThreadLocalRandom.current().nextLong(start, end) * 1000;
+    }
+    /**
+     * 随机毫秒
+     */
+    public static Long getRandomMillisecond() {
+        return ThreadLocalRandom.current().nextLong(4, 9) * 1000;
+    }
+
 
     /**
      * 解码 URL 编码的字符串

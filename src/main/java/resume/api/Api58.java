@@ -130,4 +130,17 @@ public class Api58 {
         return responseInfo;
     }
 
+
+    /**
+     * python调用校验是否拨打过（根据列表附加内容） get
+     * @param extraInfo 附加信息 （想找：徐州鼓楼|后厨杂工|面议擅长沟通1-3年后厨经验期望的福利有朝九晚五、双休、有五险一金、离家近、长期稳定。）
+     */
+    public static ResponseInfo getVirtual(String extraInfo){
+        Map<String, Object> map = new HashMap<>();
+        map.put("extraInfo", extraInfo);
+        String body = HttpUtil.get(BaseConfig.testUrl + UrlConstant.GET_BY_EXTRA_INFO, map);
+        // 设置请求头
+        return JSONObject.parseObject(body, ResponseInfo.class);
+    }
+
 }
