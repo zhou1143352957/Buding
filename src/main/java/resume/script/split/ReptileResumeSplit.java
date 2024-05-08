@@ -48,45 +48,45 @@ public class ReptileResumeSplit {
             //城市
             if (i == 0) {
                 //点击触发下拉框
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(2)).click(topPlement).pause(Duration.ofSeconds(2)).perform();
-                new Actions(driver).moveByOffset(-20, 30 * 2).pause(Duration.ofSeconds(3)).click().perform();
-                new Actions(driver).moveByOffset(-20, 30 * 5).pause(Duration.ofSeconds(2)).click().perform();
+                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                new Actions(driver).moveByOffset(-20, 30 * 2).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+                new Actions(driver).moveByOffset(-20, 30 * 5).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
                 //鼠标移动到滑动区域
                 WebElement cityChecker = topPlement.findElement(By.className("tab-city"));
                 new Actions(driver).pause(Duration.ofSeconds(2)).moveToElement(cityChecker).perform();
                 WheelInput.ScrollOrigin scrollOrigin = WheelInput.ScrollOrigin.fromElement(cityChecker);
-                new Actions(driver).moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy).pause(Duration.ofSeconds(2)).perform();
-                new Actions(driver).moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy * 2).pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
+                new Actions(driver).moveToElement(cityChecker).scrollFromOrigin(scrollOrigin, 0, hdy * 2).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getCity() + "')[0].click()", cityChecker);
                 continue;
             }
             //区域
             if (i == 1) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(2)).click().pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 WebElement tabArea = topPlement.findElement(By.className("tab-area"));
                 cateSearchJs.executeScript("document.getElementsByClassName('" + accountInfo.getArea() + "')[0].click()", tabArea);
                 continue;
             }
             //商圈
             if (i == 2) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(2)).click().pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 continue;
             }
             //性别
             if (i == 3) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(3)).click().pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 List<WebElement> searchList = topPlement.findElements(By.className("list-item"));
                 for (int j = 0; j < searchList.size(); j++) {
                     WebElement listItem = searchList.get(j);
                     if (listItem.getText().contains(accountInfo.getSex())) {
-                        new Actions(driver).moveToElement(listItem).pause(Duration.ofSeconds(2)).click().pause(Duration.ofSeconds(2)).perform();
+                        new Actions(driver).moveToElement(listItem).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                         break;
                     }
                 }
             }
             //年龄
             if (i == 4) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(2)).click().pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 List<WebElement> searchList = topPlement.findElements(By.className("list-item"));
                 //直接取最后自定义
                 WebElement lastItem = searchList.get(searchList.size() - 1);
@@ -94,9 +94,9 @@ public class ReptileResumeSplit {
                 //获取 两个输入框。然后输入年龄
                 List<WebElement> antInputs = lastItem.findElements(By.className("ant-input"));
                 //最小年龄
-                new Actions(driver).sendKeys(antInputs.get(0), accountInfo.getAgeMin().toString()).pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).sendKeys(antInputs.get(0), accountInfo.getAgeMin().toString()).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 //最大年龄
-                new Actions(driver).sendKeys(antInputs.get(1), accountInfo.getAgeMax().toString()).pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).sendKeys(antInputs.get(1), accountInfo.getAgeMax().toString()).pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 //确定
                 WebElement button = lastItem.findElement(By.tagName("button"));
                 new Actions(driver).click(button).perform();
@@ -104,7 +104,7 @@ public class ReptileResumeSplit {
             }
             //学历
             if (i == 5) {
-                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(2)).click().pause(Duration.ofSeconds(2)).perform();
+                new Actions(driver).moveToElement(topPlement).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().pause(Duration.ofSeconds(CommonUtil.getRandom())).perform();
                 WebElement itemList = topPlement.findElement(By.className("list-item"));
                 //不限
                 if (itemList.getText().contains(accountInfo.getEducation())) {
@@ -122,7 +122,7 @@ public class ReptileResumeSplit {
                             continue;
                         }
                         WebElement boxInput = checkBox.findElement(By.tagName("input"));
-                        new Actions(driver).pause(Duration.ofSeconds(2)).click(boxInput).perform();
+                        new Actions(driver).pause(Duration.ofSeconds(CommonUtil.getRandom())).click(boxInput).perform();
                         break;
                     }
                 }
