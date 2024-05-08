@@ -35,7 +35,7 @@ public class ReptileResume {
             VirtualConfig58DTO accountInfo = Api58.get58AccountInfo(usernameElement.getText());
             sleep(CommonUtil.getRandomMillisecond());
             //头部筛选框 操作代码
-            //     ReptileResumeSplit.searchItem(driver, accountInfo);
+            ReptileResumeSplit.searchItem(driver, accountInfo);
             //简历处理部分
             while (true){
                 int size = ReptileResumeSplit.resumePart(driver, accountInfo);
