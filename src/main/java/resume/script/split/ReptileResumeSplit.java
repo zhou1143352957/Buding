@@ -331,9 +331,15 @@ public class ReptileResumeSplit {
             for (int i = 0; i < educations.size(); i++) {
                 WebElement educationDetail = educations.get(i);
                 EducationDTO educationDTO = new EducationDTO();
-                educationDTO.setCollegeName(educationDetail.findElement(By.className("college-name")).getText());
-                educationDTO.setGraduateTime(educationDetail.findElement(By.className("graduate-time")).getText());
-                educationDTO.setProfessional(educationDetail.findElement(By.className("professional")).getText());
+                if (!educationDetail.findElements(By.className("college-name")).isEmpty()){
+                    educationDTO.setCollegeName(educationDetail.findElement(By.className("college-name")).getText());
+                }
+                if (!educationDetail.findElements(By.className("graduate-time")).isEmpty()){
+                    educationDTO.setGraduateTime(educationDetail.findElement(By.className("graduate-time")).getText());
+                }
+                if (!educationDetail.findElements(By.className("professional")).isEmpty()){
+                    educationDTO.setProfessional(educationDetail.findElement(By.className("professional")).getText());
+                }
                 educationDTOList.add(educationDTO);
             }
             by58DTO.setEducation(JSON.toJSONString(educationDTOList));
