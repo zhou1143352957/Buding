@@ -561,7 +561,13 @@ public class CommonUtil {
         // 保存预处理后的图像
         String preprocessedFilePath = fileUrl;
         imwrite(preprocessedFilePath, grayImage);
-        GaussianBlur(preprocessedFilePath);
+        if (fileUrl.contains("resumeName")){
+            Imgproc.bilateralFilter(image,grayImage, 9, 75, 75); //双边滤波
+       //     Imgproc.threshold(image, grayImage, 178, 305, Imgproc.THRESH_BINARY);//二化值
+            imwrite(preprocessedFilePath, grayImage);
+        } else {
+            GaussianBlur(preprocessedFilePath);//高斯滤波
+        }
         // 使用 Tesseract 进行文字识别
         try {
             Tesseract tesseract = new Tesseract();

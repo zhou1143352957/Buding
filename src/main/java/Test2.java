@@ -22,7 +22,7 @@ public class Test2 {
 
 
     public static void main(String[] args) {
-        String fileUrl = "E:\\image\\expectSalary.png";
+        String fileUrl = "E:\\image\\resumeName.png";
         // 加载 OpenCV 本地库
         System.load("E:\\opencv\\opencv\\build\\java\\x64\\opencv_java490.dll");
         // 读取图像
@@ -32,10 +32,12 @@ public class Test2 {
         Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
         // 保存预处理后的图像
         String preprocessedFilePath = fileUrl;
-        imwrite(preprocessedFilePath, grayImage);
-        CommonUtil.GaussianBlur(preprocessedFilePath);
+     //   imwrite(preprocessedFilePath, grayImage);
+      //  CommonUtil.GaussianBlur(preprocessedFilePath);
+           Imgproc.bilateralFilter(image,grayImage, 9, 75, 75); //双边滤波
         //二值化
-     //   Imgproc.threshold(image, grayImage, 128, 255, Imgproc.THRESH_BINARY);
+      //  Imgproc.threshold(image, grayImage, 178, 305, Imgproc.THRESH_BINARY);
+
 
         // 保存二值化后的图像
         Imgcodecs.imwrite(fileUrl, grayImage);

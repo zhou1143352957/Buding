@@ -186,9 +186,8 @@ public class ReptileResumeSplit {
             System.out.println("个人附加信息-----" + extraInfo);
             resumeItemDTOS.add(new ResumeItemDTO(resumeItem.getAttribute("infoid"), resumeItem.getAttribute("seriesid"), extraInfo));
         }
-       /* resumeItemDTOS.add(new ResumeItemDTO("3_neOp_enXTvmaTeH5Tey5lEHpnvtN_eHaTEdQTGZXlEOvTGnQnGdpTpsvl-NkTEysnErflEyaTe65",
-                "%257B%2522sver%2522%253A%25228%2522%252C%2522slotid%2522%253A%2522pc_rencai_list_hx_rec%2522%252C%2522pid%2522%253A%252219005aca1fdc411cb929beb25ec" +
-                        "df5e3%2522%252C%2522uuid%2522%253A%252296783e6e81f14c99ba72e01ae4de8715%2522%252C%2522sid%2522%253A%252296783e6e81f14c99ba72e01ae4de8715%2522%257D", ""));*/
+//        resumeItemDTOS.add(new ResumeItemDTO("3_netuTe6a_ersTGtpnErflEHpnvtN_eHaTEdQTGZXlEOvTGn5ne6XTxsvl-NkTEysnErflEyvTeOQ",
+//                "%7B%22sver%22%3A%228%22%2C%22slotid%22%3A%22pc_rencai_list_hx_rec%22%2C%22pid%22%3A%22e81594a9b8e84d758afab6409de44ea6%22%2C%22uuid%22%3A%22f2cff61a6b6a4b0b81ec3562a0041bcf%22%2C%22sid%22%3A%22f2cff61a6b6a4b0b81ec3562a0041bcf%22%7D", ""));
         for (int i = 0; i < resumeItemDTOS.size(); i++) {
             ResumeItemDTO resumeInfo = resumeItemDTOS.get(i);
              /*  var responseInfo = Api58.getVirtual(extraInfo);
@@ -234,7 +233,7 @@ public class ReptileResumeSplit {
                 File nameFile = name.getScreenshotAs(OutputType.FILE);
                 resumeName = CommonUtil.openCvOCR(imageUrl("resumeName.png", nameFile));
             }
-            var byNameAndBasic = Api58.getByNameAndBasic(1, resumeName, sex.equals('男') || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
+            var byNameAndBasic = Api58.getByNameAndBasic(1, resumeName, sex.equals("男") || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
             if (!byNameAndBasic.isSuccess()) {
                 log.info("调用校验是否拨打过异常；类型：" + 1);
                 // 切换回主窗口
