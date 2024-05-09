@@ -4,6 +4,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import resume.util.CommonUtil;
 
 import java.io.File;
 
@@ -25,14 +26,15 @@ public class WebDriverConfig {
         // System.setProperty("webdriver.gecko.driver", "/Users/zhoujie/Desktop/geckodriver");
         // 创建 Firefox 浏览器实例
         String os = System.getProperty("os.name").toLowerCase();
-        boolean isWindows = os.contains("windows");
         FirefoxProfile myprofile;
         FirefoxOptions options = new FirefoxOptions();
-        if (isWindows) {
-            myprofile = new FirefoxProfile(new File("C:\\Users\\Administrator\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\9r0wif91.default-release"));
+        if (os.contains("windows")) {
+            String defaultRelease = CommonUtil.defaultRelease("C:\\Users\\Administrator\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles");
+            myprofile = new FirefoxProfile(new File(defaultRelease));
             options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe");
         } else {
-            myprofile = new FirefoxProfile(new File("/Users/zhoujie/Library/Application Support/Firefox/Profiles/xgjmfsmz.default-release"));
+            String defaultRelease = CommonUtil.defaultRelease("/Users/zhoujie/Library/Application Support/Firefox/Profiles");
+            myprofile = new FirefoxProfile(new File(defaultRelease));
             options.setBinary("/Applications/Firefox.app/Contents/MacOS/firefox");
         }
         //   options.setHeadless(true); // 无头模式（可选）

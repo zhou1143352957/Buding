@@ -1,3 +1,10 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 /**
  * @Description:
  * @author: 周杰
@@ -12,15 +19,22 @@ public class Test3 {
         System.out.println(infoText[0].equals("男") || infoText[0].equals("女") ? infoText[0] : null);*/
 
      //   String str = "\uE969光辉";
-        String str = " 光辉";
 
-        // 使用正则表达式匹配非汉字字符
-        boolean containsNonChinese = str.matches(".*[^\\u4E00-\\u9FA5]+.*");
+        String baseDirectoryPath = "C:\\Users\\Administrator\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles";
+        String fileUrl = "";
+        try (Stream<Path> paths = Files.walk(Paths.get(baseDirectoryPath))) {
+            Optional<Path> optionalPath = paths.filter(Files::isDirectory)
+                    .filter(path -> path.toString().endsWith(".default-release"))
+                    .findFirst();
 
-        if (containsNonChinese) {
-            System.out.println("字符串中包含非汉字字符");
-        } else {
-            System.out.println("字符串中不包含非汉字字符");
+            if (optionalPath.isPresent()) {
+                fileUrl = optionalPath.get().toString();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        // 打印路径
+        System.out.println("Found directory: " + fileUrl);
     }
 }

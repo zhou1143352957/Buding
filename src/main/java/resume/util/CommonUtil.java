@@ -19,6 +19,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 
@@ -490,6 +494,7 @@ public class CommonUtil {
     public static Long getRandomMillisecond(long start, long end) {
         return ThreadLocalRandom.current().nextLong(start, end) * 1000;
     }
+
     /**
      * 随机毫秒
      */
@@ -499,9 +504,10 @@ public class CommonUtil {
 
     /**
      * 判断字符串里面有不是中文
+     *
      * @return true 有不是中文的字符串 false 都是中文
      */
-    public static Boolean isChinese(String content){
+    public static Boolean isChinese(String content) {
         // 使用正则表达式匹配非汉字字符
         content = content.replace(" ", "");
         return content.matches(".*[^\\u4E00-\\u9FA5]+.*");
@@ -541,8 +547,6 @@ public class CommonUtil {
         double sigmaY = 0; // Y 方向的标准差（如果设置为0，则与 sigmaX 相同）
         Imgproc.GaussianBlur(src, dst, kernelSize, sigmaX, sigmaY, Core.BORDER_DEFAULT);
         imwrite(path, dst);
-
-
     }
 
 
@@ -550,9 +554,17 @@ public class CommonUtil {
      * OpenCV 图片识别文字
      */
     public static String openCvOCR(String fileUrl) {
-     //   System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        //   System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         // 加载 OpenCV 本地库
-        System.load("E:\\opencv\\opencv\\build\\java\\x64\\opencv_java490.dll");
+        String os = System.getProperty("os.name").toLowerCase();
+        if (!os.contains("windows 10")) {
+            //云电脑
+            System.load("C:\\Users\\Administrator\\Desktop\\Java\\opencv\\build\\java\\x64\\opencv_java490.dll");
+        } else {
+            //本地win电脑
+            System.load("E:\\opencv\\opencv\\build\\java\\x64\\opencv_java490.dll");
+        }
+
         // 读取图像
         Mat image = Imgcodecs.imread(fileUrl);
         // 转换图像为灰度图像
@@ -561,9 +573,9 @@ public class CommonUtil {
         // 保存预处理后的图像
         String preprocessedFilePath = fileUrl;
         imwrite(preprocessedFilePath, grayImage);
-        if (fileUrl.contains("resumeName")){
-            Imgproc.bilateralFilter(image,grayImage, 9, 75, 75); //双边滤波
-       //     Imgproc.threshold(image, grayImage, 178, 305, Imgproc.THRESH_BINARY);//二化值
+        if (fileUrl.contains("resumeName")) {
+            Imgproc.bilateralFilter(image, grayImage, 9, 75, 75); //双边滤波
+            //     Imgproc.threshold(image, grayImage, 178, 305, Imgproc.THRESH_BINARY);//二化值
             imwrite(preprocessedFilePath, grayImage);
         } else {
             GaussianBlur(preprocessedFilePath);//高斯滤波
@@ -571,19 +583,21 @@ public class CommonUtil {
         // 使用 Tesseract 进行文字识别
         try {
             Tesseract tesseract = new Tesseract();
-            String os = System.getProperty("os.name").toLowerCase();
-            boolean isWindows = os.contains("windows");
             //如果是win系统
             //图片路径文件夹
-            if (isWindows) {
+            if (os.contains("windows")) {
                 // 设置 Tesseract 的数据路径
-                tesseract.setDatapath("E:\\TesseractOCR\\tessdata");
+                if (!os.contains("windows 10")) {
+                    tesseract.setDatapath("C:\\Users\\Administrator\\Desktop\\Java\\TesseractOCR\\tessdata");
+                } else {
+                    tesseract.setDatapath("E:\\TesseractOCR\\tessdata");
+                }
             } else {
                 tesseract.setDatapath("");
             }
             tesseract.setLanguage("chi_sim");
             String recognizedText = tesseract.doOCR(new File(fileUrl));
-            recognizedText =  recognizedText.replace("，", "|").replace(" ","")
+            recognizedText = recognizedText.replace("，", "|").replace(" ", "")
                     .replace("$", "|").replace("+", "*");
 
             System.out.println("识别文本: " + recognizedText);
@@ -592,8 +606,28 @@ public class CommonUtil {
             System.out.println("识别文本时出错: " + e.getMessage());
             throw new BusinessException("");
         }
+    }
 
+    /**
+     * @Description: 获取配置文件：default-release 的完整根目录
+     * @Author: 周杰
+     * @Date: 2024/5/9 星期四
+     * @version: dev
+     **/
+    public static String defaultRelease(String baseDirectoryPath) {
+        String defaultReleaseUrl = StringPoolConstant.EMPTY;
+        try (Stream<Path> paths = Files.walk(Paths.get(baseDirectoryPath))) {
+            Optional<Path> optionalPath = paths.filter(Files::isDirectory)
+                    .filter(path -> path.toString().endsWith(".default-release"))
+                    .findFirst();
 
+            if (optionalPath.isPresent()) {
+                defaultReleaseUrl = optionalPath.get().toString();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return defaultReleaseUrl;
     }
 
 
