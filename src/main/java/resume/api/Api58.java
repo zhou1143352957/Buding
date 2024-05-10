@@ -89,8 +89,8 @@ public class Api58 {
         map.put("basicInfo", basicInfo);
         String body = HttpUtil.get(BaseConfig.testUrl + UrlConstant.GET_BY_NAME_AND_BASIC, map);
         // 设置请求头
-        ResponseInfo responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
-        return responseInfo;
+        System.out.println("getByNameAndBasic调用校验是否拨打过:" + body);
+        return JSON.parseObject(body, ResponseInfo.class);
     }
 
     /**

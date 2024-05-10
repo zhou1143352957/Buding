@@ -235,7 +235,7 @@ public class ReptileResumeSplit {
             }
             var byNameAndBasic = Api58.getByNameAndBasic(1, resumeName, sex.equals("男") || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
             if (!byNameAndBasic.isSuccess()) {
-                log.info("调用校验是否拨打过异常；类型：" + 1);
+                log.info("调用校验是否拨打过异常类型：" + 1);
                 // 切换回主窗口
                 sleep(CommonUtil.getRandomMillisecond());
                 resumeInfoDriver.close();
