@@ -229,7 +229,7 @@ public class ReptileResumeSplit {
             String resumeName = name.getText();
             Boolean isChinese = CommonUtil.isChinese(name.getText());
             //字符串中有不是中文的字符
-            if (isChinese){
+            if (isChinese) {
                 File nameFile = name.getScreenshotAs(OutputType.FILE);
                 resumeName = CommonUtil.openCvOCR(imageUrl("resumeName.png", nameFile));
             }
@@ -330,13 +330,13 @@ public class ReptileResumeSplit {
             for (int i = 0; i < educations.size(); i++) {
                 WebElement educationDetail = educations.get(i);
                 EducationDTO educationDTO = new EducationDTO();
-                if (!educationDetail.findElements(By.className("college-name")).isEmpty()){
+                if (!educationDetail.findElements(By.className("college-name")).isEmpty()) {
                     educationDTO.setCollegeName(educationDetail.findElement(By.className("college-name")).getText());
                 }
-                if (!educationDetail.findElements(By.className("graduate-time")).isEmpty()){
+                if (!educationDetail.findElements(By.className("graduate-time")).isEmpty()) {
                     educationDTO.setGraduateTime(educationDetail.findElement(By.className("graduate-time")).getText());
                 }
-                if (!educationDetail.findElements(By.className("professional")).isEmpty()){
+                if (!educationDetail.findElements(By.className("professional")).isEmpty()) {
                     educationDTO.setProfessional(educationDetail.findElement(By.className("professional")).getText());
                 }
                 educationDTOList.add(educationDTO);
@@ -396,11 +396,10 @@ public class ReptileResumeSplit {
 
     public static String imageUrl(String picName, File scrFile) {
         String os = System.getProperty("os.name").toLowerCase();
-        boolean isWindows = os.contains("windows");
         //图片路径文件夹
         String image;
-        if (isWindows) {
-            image = "E://image";
+        if (os.contains("windows")) {
+            image = os.contains("windows 10") ? "E://image" : "C://image/";
         } else {
             image = "/Users/zhoujie/Desktop";
         }
