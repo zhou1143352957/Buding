@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;
 
@@ -418,5 +420,43 @@ public class ReptileResumeSplit {
         return image + "/" + picName;
     }
 
+
+    /**
+     * 线程执行 心跳 (开启)
+     *
+     * @author: 周杰
+     * @date: 2024/5/11
+     * @version: 1.0.0
+     * @param account 账号
+     */
+    public static CompletableFuture<Void> openHeartBeat(String account){
+        CompletableFuture<Void> heartbeatFuture = CompletableFuture.runAsync(() -> {
+            while (true) {
+                try {
+                    //心跳接口
+                    Api58.heartBeat(account);
+                    TimeUnit.SECONDS.sleep(20); // 每20秒调用一次心跳接口
+            //        TimeUnit.SECONDS.sleep(60 * 10); // 每10秒调用一次心跳接口
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        });
+        return heartbeatFuture;
+    }
+
+
+    /**
+     * 关闭 心跳
+     *
+     * @author: 周杰
+     * @date: 2024/5/11
+     * @version: 1.0.0
+     */
+    public static void  closeHeartBeat(CompletableFuture<Void> voidCompletableFuture){
+        assert voidCompletableFuture != null;
+        voidCompletableFuture.cancel(true);
+    }
 
 }

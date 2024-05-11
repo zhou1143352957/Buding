@@ -38,7 +38,7 @@ public class Api58 {
     public static VirtualConfig58DTO get58AccountInfo(String accountName) {
         Map<String, Object> param = new HashMap<>();
         param.put("account", accountName);
-        String value = HttpUtil.get(BaseConfig.testUrl + UrlConstant.GET_CONFIG_58, param);
+        String value = HttpUtil.get(UrlConstant.GET_CONFIG_58, param);
         JSONObject jsonObject = JSON.parseObject(value);
         if (!jsonObject.getString("code").equals("200")) {
             return null;
@@ -60,7 +60,7 @@ public class Api58 {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("account", account);
         jsonParam.put("type", type);
-        HttpRequest request = HttpUtil.createPost(BaseConfig.testUrl + UrlConstant.SAVE_RESUME_COUNT);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_RESUME_COUNT);
         // 设置请求头
         request.header("Content-Type", "application/json");
         // 添加请求体（例如JSON数据）
@@ -87,7 +87,7 @@ public class Api58 {
             map.put("sex", sex);
         }
         map.put("basicInfo", basicInfo);
-        String body = HttpUtil.get(BaseConfig.testUrl + UrlConstant.GET_BY_NAME_AND_BASIC, map);
+        String body = HttpUtil.get(UrlConstant.GET_BY_NAME_AND_BASIC, map);
         // 设置请求头
         System.out.println("getByNameAndBasic调用校验是否拨打过:" + body);
         return JSON.parseObject(body, ResponseInfo.class);
@@ -103,7 +103,7 @@ public class Api58 {
     public static String pyBaseInfo(String htmlContent) {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("htmlContent", htmlContent);
-        HttpRequest request = HttpUtil.createPost(BaseConfig.locationPyUrl + UrlConstant.PY_BASE_INFO);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.PY_BASE_INFO);
         // 设置请求头
         request.header("Content-Type", "application/json");
         // 添加请求体（例如JSON数据）
@@ -119,8 +119,8 @@ public class Api58 {
      * @Date: 2024/4/30 星期二
      * @version: dev
      **/
-    public static ResponseInfo saveVirtual(Virtual58DTO virtual58DTO){
-        HttpRequest request = HttpUtil.createPost(BaseConfig.testUrl + UrlConstant.SAVE_VIRTUAL);
+    public static ResponseInfo saveVirtual(Virtual58DTO virtual58DTO) {
+        HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_VIRTUAL);
         // 设置请求头
         request.header("Content-Type", "application/json");
         // 添加请求体（例如JSON数据）
@@ -136,14 +136,37 @@ public class Api58 {
 
     /**
      * python调用校验是否拨打过（根据列表附加内容） get
+     *
      * @param extraInfo 附加信息 （想找：徐州鼓楼|后厨杂工|面议擅长沟通1-3年后厨经验期望的福利有朝九晚五、双休、有五险一金、离家近、长期稳定。）
      */
-    public static ResponseInfo getVirtual(String extraInfo){
+    public static ResponseInfo getVirtual(String extraInfo) {
         Map<String, Object> map = new HashMap<>();
         map.put("extraInfo", extraInfo);
-        String body = HttpUtil.get(BaseConfig.testUrl + UrlConstant.GET_BY_EXTRA_INFO, map);
+        String body = HttpUtil.get(UrlConstant.GET_BY_EXTRA_INFO, map);
         // 设置请求头
         return JSONObject.parseObject(body, ResponseInfo.class);
     }
+
+    /**
+     * 脚本心跳
+     * post
+     * @author: 周杰
+     * @date: 2024/5/11
+     * @version: 1.0.0
+     */
+    public static ResponseInfo heartBeat(String account){
+        HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT);
+        // 设置请求头
+        request.header("Content-Type", "application/json");
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("account", account);
+        String body = request.body(jsonParam.toJSONString()).execute().body();
+        var responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
+        if (!responseInfo.isSuccess()){
+            System.err.println("脚本心跳body返回异常: " + body);
+        }
+        return responseInfo;
+    }
+
 
 }

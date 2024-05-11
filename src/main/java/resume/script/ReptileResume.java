@@ -11,6 +11,7 @@ import resume.util.CommonUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
@@ -27,6 +28,7 @@ public class ReptileResume {
 
     public static void main(String[] args) {
         WebDriver driver = null;
+        CompletableFuture<Void> voidCompletableFuture = null;
         try {
             //呼起浏览器操作
             driver = WebDriverConfig.openWebDriver();
@@ -37,6 +39,8 @@ public class ReptileResume {
             sleep(CommonUtil.getRandomMillisecond());
             //触发点击事件
             JavascriptExecutor cateSearchJs = (JavascriptExecutor) driver;
+            //心跳
+            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(accountInfo.getAccount());
             //头部筛选框 操作代码
             ReptileResumeSplit.searchItem(driver, accountInfo, cateSearchJs);
             //简历处理部分
@@ -63,6 +67,8 @@ public class ReptileResume {
         } finally {
             assert driver != null;
             driver.quit();
+            //关闭心跳
+           ReptileResumeSplit.closeHeartBeat(voidCompletableFuture);
         }
     }
 

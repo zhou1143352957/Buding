@@ -10,50 +10,62 @@ package resume.config;
  **/
 public interface UrlConstant {
 
+    String BASE_URL = BaseConfig.testUrl;
+
     /**
      * python调用查询58账号配置的筛选条件
      * http://yapi.dinggehuo.com/project/728/interface/api/58642
+     *
      * @param account 账号
      */
-    String GET_CONFIG_58 = "/job-admin/virtual-deploy/getConfig58";
+    String GET_CONFIG_58 = BASE_URL + "/job-admin/virtual-deploy/getConfig58";
 
     /**
      * python调用保存每日简历查看数
      * http://yapi.dinggehuo.com/project/728/interface/api/58648
+     *
      * @param account 账号
      * @param type 类型 1：查看简历加1 2：查看虚拟号加1 3：再次爬取加1
      */
-    String SAVE_RESUME_COUNT = "/job-admin/virtual-resume-count/saveResumeCount";
+    String SAVE_RESUME_COUNT = BASE_URL + "/job-admin/virtual-resume-count/saveResumeCount";
 
     /**
      * python调用校验是否拨打过
      * http://yapi.dinggehuo.com/project/728/interface/api/58636
+     *
      * @param type 类型1->58
      * @param name 姓名
      * @param sex  性别
      * @param basicInfo 基本信息，示例：男|25岁|大专|1-3年工作经验
      */
-    String GET_BY_NAME_AND_BASIC = "/job-admin/virtual-58/getByNameAndBasic";
+    String GET_BY_NAME_AND_BASIC = BASE_URL + "/job-admin/virtual-58/getByNameAndBasic";
 
     /**
      * python解析加密文字
+     *
      * @param htmlcontent  解析内容
      */
-    String PY_BASE_INFO = "/baseinfo";
+    String PY_BASE_INFO = BaseConfig.locationPyUrl + "/baseinfo";
 
     /**
      * python调用保存虚拟号码
      */
-    String SAVE_VIRTUAL = "/job-admin/virtual-58/saveVirtual";
+    String SAVE_VIRTUAL = BASE_URL + "/job-admin/virtual-58/saveVirtual";
 
     /**
      * python调用校验是否拨打过（根据列表附加内容） get
+     *
      * @param extraInfo 附加信息 （想找：徐州鼓楼|后厨杂工|面议擅长沟通1-3年后厨经验期望的福利有朝九晚五、双休、有五险一金、离家近、长期稳定。）
      */
-    String GET_BY_EXTRA_INFO = "/job-admin/virtual-58/getVirtual";
+    String GET_BY_EXTRA_INFO = BASE_URL + "/job-admin/virtual-58/getVirtual";
 
 
-
+    /**
+     * puthon58脚本心跳
+     *
+     * @param account 账号
+     */
+    String HEART_BEAT = BASE_URL + "/job-admin/virtual-deploy/heartBeat58";
 
 
 }
