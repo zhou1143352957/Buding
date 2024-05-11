@@ -435,8 +435,8 @@ public class ReptileResumeSplit {
                 try {
                     //心跳接口
                     Api58.heartBeat(account);
-                    TimeUnit.SECONDS.sleep(20); // 每20秒调用一次心跳接口
-            //        TimeUnit.SECONDS.sleep(60 * 10); // 每10分钟调用一次心跳接口
+            //        TimeUnit.SECONDS.sleep(20); // 每20秒调用一次心跳接口
+                    TimeUnit.SECONDS.sleep(60 * 5); // 每5分钟调用一次心跳接口
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
