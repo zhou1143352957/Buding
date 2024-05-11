@@ -1,7 +1,6 @@
 package resume.script;
 
 import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
 import resume.config.WebDriverConfig;
 import resume.entity.dto.VirtualConfig58DTO;
 import resume.api.Api58;
