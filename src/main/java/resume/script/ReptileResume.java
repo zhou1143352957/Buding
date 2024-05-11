@@ -39,8 +39,10 @@ public class ReptileResume {
             sleep(CommonUtil.getRandomMillisecond());
             //触发点击事件
             JavascriptExecutor cateSearchJs = (JavascriptExecutor) driver;
+            sleep(CommonUtil.getRandomMillisecond(3, 6));
             //心跳
-            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(accountInfo.getAccount());
+            System.out.println("账号名称：" + usernameElement.getText());
+            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText());
             //头部筛选框 操作代码
             ReptileResumeSplit.searchItem(driver, accountInfo, cateSearchJs);
             //简历处理部分
@@ -68,7 +70,7 @@ public class ReptileResume {
             assert driver != null;
             driver.quit();
             //关闭心跳
-           ReptileResumeSplit.closeHeartBeat(voidCompletableFuture);
+            ReptileResumeSplit.closeHeartBeat(voidCompletableFuture);
         }
     }
 

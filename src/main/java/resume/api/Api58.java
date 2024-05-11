@@ -60,7 +60,7 @@ public class Api58 {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("account", account);
         jsonParam.put("type", type);
-        HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_RESUME_COUNT);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_RESUME_COUNT + "?account=" + account);
         // 设置请求头
         request.header("Content-Type", "application/json");
         // 添加请求体（例如JSON数据）
@@ -155,12 +155,10 @@ public class Api58 {
      * @version: 1.0.0
      */
     public static ResponseInfo heartBeat(String account){
-        HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT + "?account=" + account);
         // 设置请求头
         request.header("Content-Type", "application/json");
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("account", account);
-        String body = request.body(jsonParam.toJSONString()).execute().body();
+        String body = request.execute().body();
         var responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
         if (!responseInfo.isSuccess()){
             System.err.println("脚本心跳body返回异常: " + body);
