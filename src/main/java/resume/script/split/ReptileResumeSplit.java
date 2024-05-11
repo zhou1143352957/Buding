@@ -269,8 +269,6 @@ public class ReptileResumeSplit {
      **/
     public static void saveResumeInfo(WebDriver resumeInfoDriver, String name, String accountName, String resumeSexOrAgeInfo, String url, String pageSource, String extraInfo) {
         try {
-
-
             String windowResumeInfoHandle = resumeInfoDriver.getWindowHandle();
             Virtual58DTO dto = new Virtual58DTO();
             dto.setType(1);
