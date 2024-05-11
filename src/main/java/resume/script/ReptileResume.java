@@ -68,6 +68,7 @@ public class ReptileResume {
             driver.close();
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
         } finally {
             assert driver != null;
             driver.quit();
