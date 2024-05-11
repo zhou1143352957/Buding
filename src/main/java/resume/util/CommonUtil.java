@@ -6,13 +6,17 @@ import com.alibaba.fastjson.JSONArray;
 import com.sipaote.common.constant.StringPoolConstant;
 import com.sipaote.common.exception.BusinessException;
 import com.sipaote.common.validator.ValidatorUtil;
+import com.sun.tools.javac.Main;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.openqa.selenium.WebElement;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -44,6 +48,7 @@ import static org.opencv.imgcodecs.Imgcodecs.imwrite;
  */
 public class CommonUtil {
 
+    private static final Logger logger = LogManager.getLogger(Main.class);
     /**
      * @param isNow true表示查询当前日期范围  false表示查询上一个日期范围
      * @return
@@ -467,9 +472,9 @@ public class CommonUtil {
             BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
             writer.write(text);
             writer.close();
-            System.out.println("字符串已成功保存为txt文件！");
+            logger.info("字符串已成功保存为txt文件！");
         } catch (IOException e) {
-            System.out.println("保存文件时发生错误：" + e.getMessage());
+            logger.error("保存文件时发生错误：{}", e.getMessage());
         }
         return filePath;
     }
@@ -571,14 +576,13 @@ public class CommonUtil {
         Mat grayImage = new Mat();
         Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
         // 保存预处理后的图像
-        String preprocessedFilePath = fileUrl;
-        imwrite(preprocessedFilePath, grayImage);
+        imwrite(fileUrl, grayImage);
         if (fileUrl.contains("resumeName")) {
             Imgproc.bilateralFilter(image, grayImage, 9, 75, 75); //双边滤波
             //     Imgproc.threshold(image, grayImage, 178, 305, Imgproc.THRESH_BINARY);//二化值
-            imwrite(preprocessedFilePath, grayImage);
+            imwrite(fileUrl, grayImage);
         } else {
-            GaussianBlur(preprocessedFilePath);//高斯滤波
+            GaussianBlur(fileUrl);//高斯滤波
         }
         // 使用 Tesseract 进行文字识别
         try {
@@ -599,13 +603,12 @@ public class CommonUtil {
             String recognizedText = tesseract.doOCR(new File(fileUrl));
             recognizedText = recognizedText.replace("，", "|").replace(" ", "")
                     .replace("$", "|").replace("+", "*");
-
-            System.out.println("识别文本: " + recognizedText);
+            logger.info("识别文本: {}", recognizedText);
             return recognizedText;
         } catch (TesseractException e) {
-            System.out.println("识别文本时出错: " + e.getMessage());
-            throw new BusinessException("");
+            logger.info("识别文本时出错: {}", e.getMessage());
         }
+        return StringPoolConstant.EMPTY;
     }
 
     /**
@@ -630,5 +633,22 @@ public class CommonUtil {
         return defaultReleaseUrl;
     }
 
+    /**
+     * 获取属性信息
+     *
+     * @param element
+     * @return
+     */
+    private static Map<String, String> getPropertyInfo(WebElement element) {
+        String text = element.getText();
+        text = text.substring(text.indexOf(' ') + 1);
+
+        return Arrays.stream(text.split(", "))
+                .map(s -> s.split(": "))
+                .collect(Collectors.toMap(
+                        a -> a[0],
+                        a -> a[1]
+                ));
+    }
 
 }

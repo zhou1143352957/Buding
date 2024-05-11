@@ -1,10 +1,11 @@
 package resume.script.split;
 
 import com.alibaba.fastjson.JSON;
-import com.sipaote.common.api.ResponseInfo;
 import com.sipaote.common.constant.StringPoolConstant;
-import lombok.extern.log4j.Log4j;
+import com.sun.tools.javac.Main;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.WheelInput;
@@ -30,8 +31,9 @@ import static java.lang.Thread.sleep;
  * @version: 1.0.0
  * Copyright Ⓒ 2022 恒翔 Computer Corporation Limited All rights reserved.
  **/
-@Log4j
 public class ReptileResumeSplit {
+
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**
      * 头部筛选框 操作代码
@@ -184,8 +186,7 @@ public class ReptileResumeSplit {
             driverJs.executeScript("arguments[0].classList.remove('resume-bottom')", hoverResume);
             //通过api接口判断该简历有没有打过电话
             String extraInfo = sb.toString().replace(" ", "");
-            // log.info("个人附加信息-----" + extraInfo);
-            System.out.println("个人附加信息-----" + extraInfo);
+            logger.info("个人附加信息{}", extraInfo);
             resumeItemDTOS.add(new ResumeItemDTO(resumeItem.getAttribute("infoid"), resumeItem.getAttribute("seriesid"), extraInfo));
         }
 //        resumeItemDTOS.add(new ResumeItemDTO("3_netuTe6a_ersTGtpnErflEHpnvtN_eHaTEdQTGZXlEOvTGn5ne6XTxsvl-NkTEysnErflEyvTeOQ",
@@ -211,7 +212,7 @@ public class ReptileResumeSplit {
             // 检查页面源代码中是否包含目标文本  虚拟号码
             if (!pageSource.contains("通话密号")) {
                 Api58.saveResumeCount(accountInfo.getAccount(), 1);
-                System.out.println("页面中|不包含|目标文本：获取通话密号/通话密号");
+                logger.info("页面中'不包含'目标文本：获取通话密号/通话密号");
                 // 切换回主窗口
                 sleep(CommonUtil.getRandomMillisecond());
                 resumeInfoDriver.close();
@@ -237,7 +238,7 @@ public class ReptileResumeSplit {
             }
             var byNameAndBasic = Api58.getByNameAndBasic(1, resumeName, sex.equals("男") || sex.equals("女") ? sex : null, resumeSexOrAgeInfo);
             if (!byNameAndBasic.isSuccess()) {
-                log.info("调用校验是否拨打过异常类型：" + 1);
+                logger.info("调用校验是否拨打过异常类型：{}", 1);
                 // 切换回主窗口
                 sleep(CommonUtil.getRandomMillisecond());
                 resumeInfoDriver.close();
@@ -266,132 +267,133 @@ public class ReptileResumeSplit {
      * @Date: 2024/4/30 星期二
      * @version: dev
      **/
-    public static void saveResumeInfo(WebDriver resumeInfoDriver, String name, String accountName, String resumeSexOrAgeInfo, String url, String pageSource, String extraInfo) throws InterruptedException {
-        String windowResumeInfoHandle = resumeInfoDriver.getWindowHandle();
-        Virtual58DTO dto = new Virtual58DTO();
-        dto.setType(1);
-        String[] infoText = resumeSexOrAgeInfo.split("|");
-        dto.setSex(infoText[0].equals("男") || infoText[0].equals("女") ? infoText[0] : null);
-        dto.setBasicInfo(resumeSexOrAgeInfo);
-        //部分隐藏的真实号码
-        if (pageSource.contains("获取通话密号")) {
-            WebElement telPwd = resumeInfoDriver.findElement(By.className("tel-pwd"));
-            File telPwdFile = telPwd.getScreenshotAs(OutputType.FILE);
-            String telPwdText = CommonUtil.openCvOCR(imageUrl("telPwd.png", telPwdFile));
-            dto.setRealNum(telPwdText);
-        }
-        //处理简历内容
-        ResumeContentBy58DTO by58DTO = new ResumeContentBy58DTO();
-        //工资 stonefont
-        WebElement expectInfo = resumeInfoDriver.findElement(By.className("expectInfo"));
-        WebElement stoneFont = expectInfo.findElement(By.className("stonefont"));
-        String expectSalaryText = "面议";
-        if (!stoneFont.getText().contains("面议")) {
-            File stoneFontFile = stoneFont.getScreenshotAs(OutputType.FILE);
-            expectSalaryText = CommonUtil.openCvOCR(imageUrl("expectSalary.png", stoneFontFile));
-            if (expectSalaryText.contains(":")) {
-                int index = expectSalaryText.indexOf(":");
-                expectSalaryText = expectSalaryText.substring(index + 1);
-            }
-        }
-        System.out.println("期望薪资:" + expectSalaryText);
-        by58DTO.setExpectSalary(expectSalaryText);
-        //期望职位
-        WebElement expectJob = expectInfo.findElement(By.id("expectJob"));
-        by58DTO.setExpectJob(expectJob.getText());
-        //期望地区
-        WebElement expectLocation = expectInfo.findElement(By.id("expectLocation"));
-        by58DTO.setExpectLocation(expectLocation.getText());
-        //求职状态
-        WebElement jobStatus = expectInfo.findElement(By.id("Job-status"));
-        by58DTO.setJobStatus(jobStatus.getText());
+    public static void saveResumeInfo(WebDriver resumeInfoDriver, String name, String accountName, String resumeSexOrAgeInfo, String url, String pageSource, String extraInfo) {
+        try {
 
-        List<Work58DTO> work58DTOList = new ArrayList<>();
-        //工作经验
-        List<WebElement> experienceDetails = resumeInfoDriver.findElements(By.className("experience-detail"));
-        for (int i = 0; i < experienceDetails.size(); i++) {
-            WebElement experienceDetail = experienceDetails.get(i);
-            Work58DTO work58DTO = new Work58DTO();
-            //公司名称
-            WebElement company = experienceDetail.findElement(By.className("itemName"));
-            work58DTO.setCompany(company.isDisplayed() ? company.getText() : StringPoolConstant.EMPTY);
-            List<WebElement> ps = experienceDetail.findElements(By.tagName("p"));
-            Work58DTO.getTextContent(work58DTO, ps);
-            if (!experienceDetail.findElements(By.className("item-content")).isEmpty()) {
-                work58DTO.setDuty(experienceDetail.findElement(By.className("item-content")).getText());
+
+            String windowResumeInfoHandle = resumeInfoDriver.getWindowHandle();
+            Virtual58DTO dto = new Virtual58DTO();
+            dto.setType(1);
+            String[] infoText = resumeSexOrAgeInfo.split("|");
+            dto.setSex(infoText[0].equals("男") || infoText[0].equals("女") ? infoText[0] : null);
+            dto.setBasicInfo(resumeSexOrAgeInfo);
+            //部分隐藏的真实号码
+            if (pageSource.contains("获取通话密号")) {
+                WebElement telPwd = resumeInfoDriver.findElement(By.className("tel-pwd"));
+                File telPwdFile = telPwd.getScreenshotAs(OutputType.FILE);
+                String telPwdText = CommonUtil.openCvOCR(imageUrl("telPwd.png", telPwdFile));
+                dto.setRealNum(telPwdText);
             }
-            work58DTOList.add(work58DTO);
-        }
-        by58DTO.setWork(JSON.toJSONString(work58DTOList));
-        //学历
-        List<WebElement> educationList = resumeInfoDriver.findElements(By.className("education"));
-        if (!educationList.isEmpty()) {
-            WebElement education = educationList.get(0);
-            List<EducationDTO> educationDTOList = new ArrayList<>();
-            List<WebElement> educations = education.findElements(By.className("edu-detail"));
-            for (int i = 0; i < educations.size(); i++) {
-                WebElement educationDetail = educations.get(i);
-                EducationDTO educationDTO = new EducationDTO();
-                if (!educationDetail.findElements(By.className("college-name")).isEmpty()) {
-                    educationDTO.setCollegeName(educationDetail.findElement(By.className("college-name")).getText());
+            //处理简历内容
+            ResumeContentBy58DTO by58DTO = new ResumeContentBy58DTO();
+            //工资 stonefont
+            WebElement expectInfo = resumeInfoDriver.findElement(By.className("expectInfo"));
+            WebElement stoneFont = expectInfo.findElement(By.className("stonefont"));
+            String expectSalaryText = "面议";
+            if (!stoneFont.getText().contains("面议")) {
+                File stoneFontFile = stoneFont.getScreenshotAs(OutputType.FILE);
+                expectSalaryText = CommonUtil.openCvOCR(imageUrl("expectSalary.png", stoneFontFile));
+                if (expectSalaryText.contains(":")) {
+                    int index = expectSalaryText.indexOf(":");
+                    expectSalaryText = expectSalaryText.substring(index + 1);
                 }
-                if (!educationDetail.findElements(By.className("graduate-time")).isEmpty()) {
-                    educationDTO.setGraduateTime(educationDetail.findElement(By.className("graduate-time")).getText());
-                }
-                if (!educationDetail.findElements(By.className("professional")).isEmpty()) {
-                    educationDTO.setProfessional(educationDetail.findElement(By.className("professional")).getText());
-                }
-                educationDTOList.add(educationDTO);
             }
-            by58DTO.setEducation(JSON.toJSONString(educationDTOList));
-        }
-        //自我介绍
-        WebElement aboutMe = resumeInfoDriver.findElement(By.xpath("/html/body/div[2]/div[1]/div/div[5]"));
-        if (!aboutMe.findElements(By.className("edu-detail")).isEmpty()) {
-            WebElement aboutMeDetail = aboutMe.findElement(By.className("edu-detail"));
-            by58DTO.setAboutMe(aboutMeDetail.isEnabled() && aboutMeDetail.isDisplayed() ? aboutMeDetail.getText() : StringPoolConstant.EMPTY);
-        }
-        dto.setContent(JSON.toJSONString(by58DTO));
-        //获取虚拟号
-        if (!resumeInfoDriver.findElements(By.className("getSecret-btn")).isEmpty()) {
-            WebElement getSecretNumBtn = resumeInfoDriver.findElement(By.className("getSecret-btn"));
-            new Actions(resumeInfoDriver).moveToElement(getSecretNumBtn).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
-        }
-        List<WebElement> boxList = resumeInfoDriver.findElements(By.id("_58MessageBoxFrame"));
-        sleep(CommonUtil.getRandomMillisecond());
-        //如果有弹框 点击
-        if (!boxList.isEmpty()) {
-            System.out.println("如果有弹框 点击:" + boxList.size());
+            logger.info("期望薪资:{}", expectSalaryText);
+            by58DTO.setExpectSalary(expectSalaryText);
+            //期望职位
+            WebElement expectJob = expectInfo.findElement(By.id("expectJob"));
+            by58DTO.setExpectJob(expectJob.getText());
+            //期望地区
+            WebElement expectLocation = expectInfo.findElement(By.id("expectLocation"));
+            by58DTO.setExpectLocation(expectLocation.getText());
+            //求职状态
+            WebElement jobStatus = expectInfo.findElement(By.id("Job-status"));
+            by58DTO.setJobStatus(jobStatus.getText());
+
+            List<Work58DTO> work58DTOList = new ArrayList<>();
+            //工作经验
+            List<WebElement> experienceDetails = resumeInfoDriver.findElements(By.className("experience-detail"));
+            for (WebElement experienceDetail : experienceDetails) {
+                Work58DTO work58DTO = new Work58DTO();
+                //公司名称
+                WebElement company = experienceDetail.findElement(By.className("itemName"));
+                work58DTO.setCompany(company.isDisplayed() ? company.getText() : StringPoolConstant.EMPTY);
+                List<WebElement> ps = experienceDetail.findElements(By.tagName("p"));
+                Work58DTO.getTextContent(work58DTO, ps);
+                if (!experienceDetail.findElements(By.className("item-content")).isEmpty()) {
+                    work58DTO.setDuty(experienceDetail.findElement(By.className("item-content")).getText());
+                }
+                work58DTOList.add(work58DTO);
+            }
+            by58DTO.setWork(JSON.toJSONString(work58DTOList));
+            //学历
+            List<WebElement> educationList = resumeInfoDriver.findElements(By.className("education"));
+            if (!educationList.isEmpty()) {
+                WebElement education = educationList.get(0);
+                List<EducationDTO> educationDTOList = new ArrayList<>();
+                List<WebElement> educations = education.findElements(By.className("edu-detail"));
+                for (WebElement educationDetail : educations) {
+                    EducationDTO educationDTO = new EducationDTO();
+                    if (!educationDetail.findElements(By.className("college-name")).isEmpty()) {
+                        educationDTO.setCollegeName(educationDetail.findElement(By.className("college-name")).getText());
+                    }
+                    if (!educationDetail.findElements(By.className("graduate-time")).isEmpty()) {
+                        educationDTO.setGraduateTime(educationDetail.findElement(By.className("graduate-time")).getText());
+                    }
+                    if (!educationDetail.findElements(By.className("professional")).isEmpty()) {
+                        educationDTO.setProfessional(educationDetail.findElement(By.className("professional")).getText());
+                    }
+                    educationDTOList.add(educationDTO);
+                }
+                by58DTO.setEducation(JSON.toJSONString(educationDTOList));
+            }
+            //自我介绍
+            WebElement aboutMe = resumeInfoDriver.findElement(By.xpath("/html/body/div[2]/div[1]/div/div[5]"));
+            if (!aboutMe.findElements(By.className("edu-detail")).isEmpty()) {
+                WebElement aboutMeDetail = aboutMe.findElement(By.className("edu-detail"));
+                by58DTO.setAboutMe(aboutMeDetail.isEnabled() && aboutMeDetail.isDisplayed() ? aboutMeDetail.getText() : StringPoolConstant.EMPTY);
+            }
+            dto.setContent(JSON.toJSONString(by58DTO));
+            //获取虚拟号
+            if (!resumeInfoDriver.findElements(By.className("getSecret-btn")).isEmpty()) {
+                WebElement getSecretNumBtn = resumeInfoDriver.findElement(By.className("getSecret-btn"));
+                new Actions(resumeInfoDriver).moveToElement(getSecretNumBtn).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+            }
+            List<WebElement> boxList = resumeInfoDriver.findElements(By.id("_58MessageBoxFrame"));
             sleep(CommonUtil.getRandomMillisecond());
-            //如果您的框架或iframe具有id或名称属性，则可以改用这个属性。如果页面上的名称或ID不是唯一的，那么第一个找到的将被切换到。
-            WebDriver messageBoxFrameDriver = resumeInfoDriver.switchTo().frame("_58MessageBoxFrame");
-            messageBoxFrameDriver.findElement(By.id("btn_ok2")).click();
-            //   new Actions(messageBoxFrameDriver).moveToElement(messageBoxFrameDriver.findElement(By.id("btn_ok2"))).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
-            System.out.println("已经点过了");
-            sleep(CommonUtil.getRandomMillisecond());
-            //切换到简历详情页面
-            resumeInfoDriver.switchTo().window(windowResumeInfoHandle);
-            sleep(CommonUtil.getRandomMillisecond(11, 18));
-        }
-        //获取虚拟号码位置截图 OCR识别
-        WebElement telephone = resumeInfoDriver.findElement(By.className("telephone"));
-        WebElement secretNum = telephone.findElement(By.className("secretNum"));
-        WebElement virtualTelPwd = secretNum.findElement(By.className("tel-pwd"));
-        File secretFile = virtualTelPwd.getScreenshotAs(OutputType.FILE);
-        String virtualTelPath = imageUrl("virtualTel.png", secretFile);
-        String virtualTel = CommonUtil.openCvOCR(virtualTelPath);
-        dto.setVirtualTel(virtualTel);
-        dto.setName(name);
-        dto.setAccountName(accountName);
-        //获取失效时间
-        WebElement failTimeEm = resumeInfoDriver.findElement(By.className("failTime-em"));
-        dto.setExpireTime(failTimeEm.getText());
-        //跳转链接
-        dto.setUrl(url);
-        dto.setExtraInfo(extraInfo);
-        var responseInfo = Api58.saveVirtual(dto);
-        if (!responseInfo.isSuccess()) {
-            log.error(responseInfo.getMsg());
+            //如果有弹框 点击
+            if (!boxList.isEmpty()) {
+                logger.info("如果有弹框 点击:{}", boxList.size());
+                sleep(CommonUtil.getRandomMillisecond());
+                //如果您的框架或iframe具有id或名称属性，则可以改用这个属性。如果页面上的名称或ID不是唯一的，那么第一个找到的将被切换到。
+                WebDriver messageBoxFrameDriver = resumeInfoDriver.switchTo().frame("_58MessageBoxFrame");
+                messageBoxFrameDriver.findElement(By.id("btn_ok2")).click();
+                //   new Actions(messageBoxFrameDriver).moveToElement(messageBoxFrameDriver.findElement(By.id("btn_ok2"))).pause(Duration.ofSeconds(CommonUtil.getRandom())).click().perform();
+                logger.info("已经点过了");
+                sleep(CommonUtil.getRandomMillisecond());
+                //切换到简历详情页面
+                resumeInfoDriver.switchTo().window(windowResumeInfoHandle);
+                sleep(CommonUtil.getRandomMillisecond(11, 18));
+            }
+            //获取虚拟号码位置截图 OCR识别
+            WebElement telephone = resumeInfoDriver.findElement(By.className("telephone"));
+            WebElement secretNum = telephone.findElement(By.className("secretNum"));
+            WebElement virtualTelPwd = secretNum.findElement(By.className("tel-pwd"));
+            File secretFile = virtualTelPwd.getScreenshotAs(OutputType.FILE);
+            String virtualTelPath = imageUrl("virtualTel.png", secretFile);
+            String virtualTel = CommonUtil.openCvOCR(virtualTelPath);
+            dto.setVirtualTel(virtualTel);
+            dto.setName(name);
+            dto.setAccountName(accountName);
+            //获取失效时间
+            WebElement failTimeEm = resumeInfoDriver.findElement(By.className("failTime-em"));
+            dto.setExpireTime(failTimeEm.getText());
+            //跳转链接
+            dto.setUrl(url);
+            dto.setExtraInfo(extraInfo);
+            Api58.saveVirtual(dto);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -424,18 +426,18 @@ public class ReptileResumeSplit {
     /**
      * 线程执行 心跳 (开启)
      *
+     * @param account 账号
      * @author: 周杰
      * @date: 2024/5/11
      * @version: 1.0.0
-     * @param account 账号
      */
-    public static CompletableFuture<Void> openHeartBeat(String account){
+    public static CompletableFuture<Void> openHeartBeat(String account) {
         CompletableFuture<Void> heartbeatFuture = CompletableFuture.runAsync(() -> {
             while (true) {
                 try {
                     //心跳接口
                     Api58.heartBeat(account);
-            //        TimeUnit.SECONDS.sleep(20); // 每20秒调用一次心跳接口
+                    //        TimeUnit.SECONDS.sleep(20); // 每20秒调用一次心跳接口
                     TimeUnit.SECONDS.sleep(60 * 5); // 每5分钟调用一次心跳接口
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -454,7 +456,7 @@ public class ReptileResumeSplit {
      * @date: 2024/5/11
      * @version: 1.0.0
      */
-    public static void  closeHeartBeat(CompletableFuture<Void> voidCompletableFuture){
+    public static void closeHeartBeat(CompletableFuture<Void> voidCompletableFuture) {
         assert voidCompletableFuture != null;
         voidCompletableFuture.cancel(true);
     }

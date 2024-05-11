@@ -5,11 +5,10 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sipaote.common.api.ResponseInfo;
-import com.sipaote.common.exception.BusinessException;
 import com.sipaote.common.validator.ValidatorUtil;
-import lombok.extern.log4j.Log4j;
-import netscape.javascript.JSObject;
-import resume.config.BaseConfig;
+import com.sun.tools.javac.Main;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import resume.config.UrlConstant;
 import resume.entity.dto.Virtual58DTO;
 import resume.entity.dto.VirtualConfig58DTO;
@@ -25,9 +24,9 @@ import java.util.Map;
  * @version: 1.0.0
  * Copyright Ⓒ 2022 恒翔 Computer Corporation Limited All rights reserved.
  **/
-@Log4j
 public class Api58 {
 
+    private static final Logger logger = LogManager.getLogger(Main.class);
     /**
      * 根据账号 获取58账号配置筛选条件
      *
@@ -68,7 +67,7 @@ public class Api58 {
         String value = request.execute().body();
         JSONObject jsonObject = JSON.parseObject(value);
         if (!jsonObject.getString("code").equals("200")) {
-            log.info(account + "账号 保存每日简历查看数异常；类型：" + type);
+            logger.info("{}账号 保存每日简历查看数异常；类型：{}", account, type);
         }
     }
 
@@ -89,7 +88,7 @@ public class Api58 {
         map.put("basicInfo", basicInfo);
         String body = HttpUtil.get(UrlConstant.GET_BY_NAME_AND_BASIC, map);
         // 设置请求头
-        System.out.println("getByNameAndBasic调用校验是否拨打过:" + body);
+        logger.info("getByNameAndBasic调用校验是否拨打过:{}", body);
         return JSON.parseObject(body, ResponseInfo.class);
     }
 
@@ -119,18 +118,21 @@ public class Api58 {
      * @Date: 2024/4/30 星期二
      * @version: dev
      **/
-    public static ResponseInfo saveVirtual(Virtual58DTO virtual58DTO) {
+    public static void saveVirtual(Virtual58DTO virtual58DTO) {
         HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_VIRTUAL);
         // 设置请求头
         request.header("Content-Type", "application/json");
         // 添加请求体（例如JSON数据）
         String jsonString = JSON.toJSONString(virtual58DTO);
-        System.out.println("调用保存虚拟号码基本信息: " + jsonString);
+        logger.info("调用保存虚拟号码基本信息: {}", jsonString);
         request.body(jsonString);
         String body = request.execute().body();
-        System.out.println("保存虚拟号码基本信息返回body: " + body);
-        ResponseInfo responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
-        return responseInfo;
+        logger.info("保存虚拟号码基本信息返回body: {}", body);
+        var responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
+        if (!responseInfo.isSuccess()) {
+            logger.error("保存虚拟号码基本信息异常:{}", responseInfo.getMsg());
+        }
+
     }
 
 
@@ -161,7 +163,7 @@ public class Api58 {
         String body = request.execute().body();
         var responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
         if (!responseInfo.isSuccess()){
-            System.err.println("脚本心跳body返回异常: " + body);
+            logger.error("脚本心跳body返回异常: {}", body);
         }
         return responseInfo;
     }

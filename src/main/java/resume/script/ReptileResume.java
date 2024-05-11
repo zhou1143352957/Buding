@@ -1,5 +1,9 @@
 package resume.script;
 
+import com.sun.tools.javac.Main;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*;
 import resume.config.WebDriverConfig;
 import resume.entity.dto.VirtualConfig58DTO;
@@ -7,11 +11,8 @@ import resume.api.Api58;
 import resume.script.split.ReptileResumeSplit;
 import resume.util.CommonUtil;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
@@ -24,6 +25,8 @@ import static java.lang.Thread.sleep;
  * Copyright Ⓒ 2022 恒翔 Computer Corporation Limited All rights reserved.
  **/
 public class ReptileResume {
+
+    private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
         WebDriver driver = null;
@@ -40,7 +43,7 @@ public class ReptileResume {
             JavascriptExecutor cateSearchJs = (JavascriptExecutor) driver;
             sleep(CommonUtil.getRandomMillisecond(3, 6));
             //心跳
-            System.out.println("账号名称：" + usernameElement.getText());
+            logger.info("账号名称：{}", usernameElement.getText());
             voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText());
             //头部筛选框 操作代码
             ReptileResumeSplit.searchItem(driver, accountInfo, cateSearchJs);
@@ -53,10 +56,10 @@ public class ReptileResume {
                 sleep(CommonUtil.getRandomMillisecond());
                 //分页元素
                 WebElement resumePage = driver.findElement(By.className("resume-page"));
-                System.out.println("resume-page元素数量：" + driver.findElements(By.className("resume-page")).size());
+                logger.info("resume-page元素数量：{}", driver.findElements(By.className("resume-page")).size());
                 //下一页
                 List<WebElement> antBtnLink = resumePage.findElements(By.className("ant-btn-link"));
-                System.out.println("antBtnLink次数 = " + antBtnLink.size());
+                logger.info("antBtnLink次数 : {}", antBtnLink.size());
                 antBtnLink.get(1).click();
                 //下一页之后 点击置顶
                 sleep(CommonUtil.getRandomMillisecond());
@@ -69,27 +72,12 @@ public class ReptileResume {
             assert driver != null;
             driver.quit();
             //关闭心跳
+            assert voidCompletableFuture != null;
             ReptileResumeSplit.closeHeartBeat(voidCompletableFuture);
         }
     }
 
 
-    /**
-     * 获取属性信息
-     *
-     * @param element
-     * @return
-     */
-    private static Map<String, String> getPropertyInfo(WebElement element) {
-        String text = element.getText();
-        text = text.substring(text.indexOf(' ') + 1);
 
-        return Arrays.stream(text.split(", "))
-                .map(s -> s.split(": "))
-                .collect(Collectors.toMap(
-                        a -> a[0],
-                        a -> a[1]
-                ));
-    }
 
 }
