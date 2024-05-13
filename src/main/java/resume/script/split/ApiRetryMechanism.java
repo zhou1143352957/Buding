@@ -24,7 +24,7 @@ public class ApiRetryMechanism {
     //重试次数
     private static final int MAX_RETRIES = 20;
     //延迟 xxx 秒
-    private static final long RETRY_DELAY_SECONDS = 60; // 1 second
+    private static final long RETRY_DELAY_SECONDS = 60;
 
     /**
      * 重试调用api
