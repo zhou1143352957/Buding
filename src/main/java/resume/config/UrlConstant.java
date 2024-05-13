@@ -68,4 +68,10 @@ public interface UrlConstant {
     String HEART_BEAT = BASE_URL + "/job-admin/virtual-deploy/heartBeat58";
 
 
+    /**
+     * 验证人才招聘总后台 服务器是否异常或者 正在重启中 verifyApi
+     */
+    String VERIFY_API = BASE_URL + "/job-admin/api/verify";
+
+
 }

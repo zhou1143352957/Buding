@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import resume.config.UrlConstant;
 import resume.entity.dto.Virtual58DTO;
 import resume.entity.dto.VirtualConfig58DTO;
+import resume.script.split.ApiRetryMechanism;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,9 @@ public class Api58 {
      * @version: 1.0.0
      */
     public static VirtualConfig58DTO get58AccountInfo(String accountName) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
         Map<String, Object> param = new HashMap<>();
         param.put("account", accountName);
         String value = HttpUtil.get(UrlConstant.GET_CONFIG_58, param);
@@ -56,6 +60,9 @@ public class Api58 {
      * @version: 1.0.0
      */
     public static void saveResumeCount(String account, Integer type) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("account", account);
         jsonParam.put("type", type);
@@ -79,6 +86,9 @@ public class Api58 {
      * @version: 1.0.0
      */
     public static ResponseInfo getByNameAndBasic(Integer type, String name, String sex, String basicInfo) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
         Map<String, Object> map = new HashMap<>();
         map.put("type", type);
         map.put("name", name);
@@ -119,6 +129,9 @@ public class Api58 {
      * @version: dev
      **/
     public static void saveVirtual(Virtual58DTO virtual58DTO) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
         HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_VIRTUAL);
         // 设置请求头
         request.header("Content-Type", "application/json");
@@ -142,6 +155,9 @@ public class Api58 {
      * @param extraInfo 附加信息 （想找：徐州鼓楼|后厨杂工|面议擅长沟通1-3年后厨经验期望的福利有朝九晚五、双休、有五险一金、离家近、长期稳定。）
      */
     public static ResponseInfo getVirtual(String extraInfo) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
         Map<String, Object> map = new HashMap<>();
         map.put("extraInfo", extraInfo);
         String body = HttpUtil.get(UrlConstant.GET_BY_EXTRA_INFO, map);
@@ -157,6 +173,9 @@ public class Api58 {
      * @version: 1.0.0
      */
     public static ResponseInfo heartBeat(String account){
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
         HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT + "?account=" + account);
         // 设置请求头
         request.header("Content-Type", "application/json");
@@ -167,6 +186,19 @@ public class Api58 {
         }
         return responseInfo;
     }
+
+    /**
+     * 验证人才伯乐 总后台服务器是否 异常/重启
+     *
+     * @author: 周杰
+     * @date: 2024/5/13
+     * @version: 1.0.0
+     */
+    public static String verifyApi(){
+        String value = HttpUtil.get(UrlConstant.GET_CONFIG_58);
+        return value;
+    }
+
 
 
 }
