@@ -176,7 +176,7 @@ public class Api58 {
         //验证接口是否异常
         ApiRetryMechanism.callApiWithRetry();
 
-        HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT + "?account=" + account);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT + "?account=" + account + "&session_status=true");
         // 设置请求头
         request.header("Content-Type", "application/json");
         String body = request.execute().body();
