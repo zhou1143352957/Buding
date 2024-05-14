@@ -24,7 +24,7 @@ import static java.lang.Thread.sleep;
  * @version: 1.0.0
  * Copyright Ⓒ 2022 恒翔 Computer Corporation Limited All rights reserved.
  **/
-public class ReptileResume {
+public class CrawlerResume {
 
     private static final Logger logger = LogManager.getLogger(Main.class);
 
@@ -34,6 +34,8 @@ public class ReptileResume {
         try {
             //呼起浏览器操作
             driver = WebDriverConfig.openWebDriver();
+            // 打开网页
+            driver.get("https://employer.58.com/main/resumesearch");
             //获个人账号
             WebElement usernameElement = driver.findElement(By.className("user-name"));
             //获取 58 配置信息

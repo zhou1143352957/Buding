@@ -74,4 +74,13 @@ public interface UrlConstant {
     String VERIFY_API = BASE_URL + "/job-admin/api/verify";
 
 
+    /**
+     * 保存元宝
+     * post
+     * @param account 账号
+     * @param totalCoin 总元宝
+     * @param todayGet 今日获得的元宝
+     */
+    String SAVE_YUAN_BAO = BASE_URL + "job-admin/virtual-deploy/saveYuanBao";
+
 }

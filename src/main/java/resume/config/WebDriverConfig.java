@@ -42,8 +42,6 @@ public class WebDriverConfig {
         //     options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
         WebDriver driver = new FirefoxDriver(options);
         //   driver.manage().window().maximize();//窗口最大化
-        // 打开网页
-        driver.get("https://employer.58.com/main/resumesearch");
         return driver;
     }
 

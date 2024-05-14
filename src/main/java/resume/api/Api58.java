@@ -28,6 +28,7 @@ import java.util.Map;
 public class Api58 {
 
     private static final Logger logger = LogManager.getLogger(Main.class);
+
     /**
      * 根据账号 获取58账号配置筛选条件
      *
@@ -168,11 +169,12 @@ public class Api58 {
     /**
      * 脚本心跳
      * post
+     *
      * @author: 周杰
      * @date: 2024/5/11
      * @version: 1.0.0
      */
-    public static ResponseInfo heartBeat(String account){
+    public static ResponseInfo heartBeat(String account) {
         //验证接口是否异常
         ApiRetryMechanism.callApiWithRetry();
 
@@ -181,7 +183,7 @@ public class Api58 {
         request.header("Content-Type", "application/json");
         String body = request.execute().body();
         var responseInfo = JSONObject.parseObject(body, ResponseInfo.class);
-        if (!responseInfo.isSuccess()){
+        if (!responseInfo.isSuccess()) {
             logger.error("脚本心跳body返回异常: {}", body);
         }
         return responseInfo;
@@ -194,11 +196,32 @@ public class Api58 {
      * @date: 2024/5/13
      * @version: 1.0.0
      */
-    public static String verifyApi(){
+    public static String verifyApi() {
         String value = HttpUtil.get(UrlConstant.GET_CONFIG_58);
         return value;
     }
 
+    /**
+     * @param account   账号
+     * @param totalCoin 总元宝
+     * @param todayGet  今日获得的元宝
+     * @Description: 保存每日元宝数量，领取元宝数量
+     * @Author: 周杰
+     * @Date: 2024/5/14 星期二
+     * @version: dev
+     **/
+    public static void saveYuanBao(String account, Integer totalCoin, Integer todayGet) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
 
+        HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT + "?account=" + account + "&totalCoin=" + totalCoin + "&todayGet=" + todayGet);
+        // 设置请求头
+        request.header("Content-Type", "application/json");
+        String body = request.execute().body();
+        JSONObject jsonObject = JSON.parseObject(body);
+        if (!jsonObject.getString("code").equals("200")) {
+            logger.error("保存每日元宝数量异常:{}", body);
+        }
+    }
 
 }
