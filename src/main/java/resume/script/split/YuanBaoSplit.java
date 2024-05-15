@@ -31,8 +31,8 @@ public class YuanBaoSplit {
      **/
     public static void yuanBaoPage(WebDriver driver, String account) {
         try {
-            List<WebElement> navItemBoxs = driver.findElements(By.className("nav-item-box"));
             sleep(CommonUtil.getRandomMillisecond());
+            List<WebElement> navItemBoxs = driver.findElements(By.className("nav-item-box"));
             navItemBoxs.get(navItemBoxs.size() - 2).click();
             sleep(CommonUtil.getRandomMillisecond());
             WebElement homeCoinInfoLeft = driver.findElement(By.className("home_coin_info_left"));

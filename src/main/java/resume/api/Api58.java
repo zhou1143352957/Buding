@@ -222,6 +222,7 @@ public class Api58 {
         if (!jsonObject.getString("code").equals("200")) {
             logger.error("保存每日元宝数量异常:{}", body);
         }
+        logger.info("保存每日元宝签到成功， 总元宝{}个，今日活动元宝{}个",totalCoin,todayGet);
     }
 
 }
