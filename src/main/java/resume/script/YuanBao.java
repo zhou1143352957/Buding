@@ -41,11 +41,11 @@ public class YuanBao {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            assert driver != null;
-            driver.quit();
             //关闭心跳
             assert voidCompletableFuture != null;
             ReptileResumeSplit.closeHeartBeat(voidCompletableFuture);
+
+            driver.quit();
         }
     }
 

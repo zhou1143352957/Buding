@@ -23,6 +23,7 @@ import static java.lang.Thread.sleep;
 public class YuanBaoSplit {
 
     private static final Logger logger = LogManager.getLogger(Main.class);
+
     /**
      * @Description: 跳转到元宝页面
      * @Author: 周杰
@@ -31,7 +32,7 @@ public class YuanBaoSplit {
      **/
     public static void yuanBaoPage(WebDriver driver, String account) {
         try {
-            sleep(CommonUtil.getRandomMillisecond());
+            sleep(CommonUtil.getRandomMillisecond(14, 20));
             List<WebElement> navItemBoxs = driver.findElements(By.className("nav-item-box"));
             navItemBoxs.get(navItemBoxs.size() - 2).click();
             sleep(CommonUtil.getRandomMillisecond());
