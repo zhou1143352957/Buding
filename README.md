@@ -28,7 +28,7 @@ Buding 是一个用 Java 编写的数据采集工具，旨在从目标网站上�
 
 ### 编译项目
 - **mvn clean install**
-### 编译项目
+### 运行项目
 - **java -cp /url/local/Buding.jar resume/script/CrawlerResume**
 
 
