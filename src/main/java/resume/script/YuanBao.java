@@ -29,6 +29,7 @@ public class YuanBao {
         try {
             //呼起浏览器操作
             driver = WebDriverConfig.openWebDriver();
+            driver.manage().window().maximize();//窗口最大化
             // 打开网页
             driver.get("https://employer.58.com/index");
             //获个人账号
