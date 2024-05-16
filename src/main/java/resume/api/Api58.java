@@ -197,7 +197,7 @@ public class Api58 {
      * @version: 1.0.0
      */
     public static String verifyApi() {
-        String value = HttpUtil.get(UrlConstant.GET_CONFIG_58);
+        String value = HttpUtil.get(UrlConstant.VERIFY_API);
         return value;
     }
 
@@ -214,7 +214,7 @@ public class Api58 {
         //验证接口是否异常
         ApiRetryMechanism.callApiWithRetry();
 
-        HttpRequest request = HttpUtil.createPost(UrlConstant.HEART_BEAT + "?account=" + account + "&totalCoin=" + totalCoin + "&todayGet=" + todayGet);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_YUAN_BAO + "?account=" + account + "&totalCoin=" + totalCoin + "&todayGet=" + todayGet);
         // 设置请求头
         request.header("Content-Type", "application/json");
         String body = request.execute().body();
@@ -222,7 +222,7 @@ public class Api58 {
         if (!jsonObject.getString("code").equals("200")) {
             logger.error("保存每日元宝数量异常:{}", body);
         }
-        logger.info("保存每日元宝签到成功， 总元宝{}个，今日活动元宝{}个",totalCoin,todayGet);
+        logger.info("保存每日元宝签到成功， 总元宝{}个，今日活动元宝{}个", totalCoin, todayGet);
     }
 
 }

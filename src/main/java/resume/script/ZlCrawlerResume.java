@@ -3,8 +3,12 @@ package resume.script;
 import com.sun.tools.javac.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import resume.api.ApiZl;
 import resume.config.WebDriverConfig;
+import resume.script.split.ReptileResumeSplit;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -27,9 +31,22 @@ public class ZlCrawlerResume {
             driver = WebDriverConfig.openWebDriver();
             // 打开网页
             driver.get("https://www.zhaopin.com/");
+            //获个人账号
+            WebElement usernameElement = driver.findElement(By.className("user-name"));
+            //心跳
+            logger.info("账号名称：{}", usernameElement.getText());
+            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText(), 2);
+            ApiZl.getZlTime();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            logger.error(e.getMessage());
+        } finally {
+            assert driver != null;
+            driver.quit();
+            //关闭心跳
+            assert voidCompletableFuture != null;
+            ReptileResumeSplit.closeHeartBeat(voidCompletableFuture);
         }
 
 

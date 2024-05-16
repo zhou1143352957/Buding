@@ -46,7 +46,7 @@ public class CrawlerResume {
             sleep(CommonUtil.getRandomMillisecond(3, 6));
             //心跳
             logger.info("账号名称：{}", usernameElement.getText());
-            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText());
+            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText(), 1);
             //头部筛选框 操作代码
             ReptileResumeSplit.searchItem(driver, accountInfo, cateSearchJs);
             //简历处理部分

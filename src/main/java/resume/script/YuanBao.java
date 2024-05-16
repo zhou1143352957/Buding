@@ -36,7 +36,7 @@ public class YuanBao {
             WebElement usernameElement = driver.findElement(By.className("user-name"));
             //心跳
             logger.info("58元宝脚本，执行账号名称：{}", usernameElement.getText());
-            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText());
+            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText(), 1);
             YuanBaoSplit.yuanBaoPage(driver, usernameElement.getText());
         } catch (Exception e) {
             e.printStackTrace();

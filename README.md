@@ -18,7 +18,7 @@ Buding 是一个用 Java 编写的数据采集工具，旨在从目标网站上�
 
 - JDK 17
 - Maven 3.6+
-- 浏览器驱动（如 ChromeDriver）
+- 浏览器驱动（如 ChromeDriver、GeckoDriver）
 
 ## 安装与运行
 

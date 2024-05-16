@@ -10,6 +10,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.WheelInput;
 import resume.api.Api58;
+import resume.api.ApiZl;
 import resume.entity.dto.*;
 import resume.util.CommonUtil;
 
@@ -425,16 +426,21 @@ public class ReptileResumeSplit {
      * 线程执行 心跳 (开启)
      *
      * @param account 账号
+     * @param type    类型1->58，2->智联，3->boss
      * @author: 周杰
      * @date: 2024/5/11
      * @version: 1.0.0
      */
-    public static CompletableFuture<Void> openHeartBeat(String account) {
+    public static CompletableFuture<Void> openHeartBeat(String account, Integer type) {
         CompletableFuture<Void> heartbeatFuture = CompletableFuture.runAsync(() -> {
             while (true) {
                 try {
                     //心跳接口
-                    Api58.heartBeat(account);
+                    switch (type){
+                        case 1 ->  Api58.heartBeat(account);
+                        case 2 ->  ApiZl.heartBeatZl(account);
+                      //  case 3 ->  ApiZl.heartBeatZl(account); //boss心跳
+                    }
                     //        TimeUnit.SECONDS.sleep(20); // 每20秒调用一次心跳接口
                     TimeUnit.SECONDS.sleep(60 * 5); // 每5分钟调用一次心跳接口
                 } catch (InterruptedException e) {

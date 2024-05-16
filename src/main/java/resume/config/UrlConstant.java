@@ -75,12 +75,30 @@ public interface UrlConstant {
 
 
     /**
-     * 保存元宝
+     * 58保存元宝
      * post
+     *
      * @param account 账号
      * @param totalCoin 总元宝
      * @param todayGet 今日获得的元宝
      */
-    String SAVE_YUAN_BAO = BASE_URL + "job-admin/virtual-deploy/saveYuanBao";
+    String SAVE_YUAN_BAO = BASE_URL + "/job-admin/virtual-deploy/saveYuanBao";
+
+
+    /**
+     * 智联招聘 心跳
+     *
+     * @param account 账号
+     */
+    String HEART_BEAT_ZL = BASE_URL + "/job-admin/virtual-config-zl/heartBeatZl";
+
+
+    /**
+     * 获取智联招聘时间段
+     * post
+     * return String [{"startTime":"08:30","endTime":"21:00"}]
+     */
+    String GET_VIRTUAL_ZL_TIME = BASE_URL + "/job-admin/common/config/configKey/virtual.zl.time";
+
 
 }
