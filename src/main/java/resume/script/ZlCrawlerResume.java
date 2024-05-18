@@ -4,11 +4,14 @@ import com.sun.tools.javac.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import resume.api.ApiZl;
 import resume.config.WebDriverConfig;
+import resume.entity.dto.ZlVirtualConfigDTO;
 import resume.script.split.ReptileResumeSplit;
+import resume.script.split.ZlReptileResumeSplit;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -25,18 +28,16 @@ public class ZlCrawlerResume {
 
     public static void main(String[] args) {
         WebDriver driver = null;
-        CompletableFuture<Void> voidCompletableFuture = null;
         try {
             //呼起浏览器操作
             driver = WebDriverConfig.openWebDriver();
             // 打开网页
             driver.get("https://www.zhaopin.com/");
-            //获个人账号
-            WebElement usernameElement = driver.findElement(By.className("user-name"));
-            //心跳
-            logger.info("账号名称：{}", usernameElement.getText());
-            voidCompletableFuture = ReptileResumeSplit.openHeartBeat(usernameElement.getText(), 2);
+            //获取智联时间段
             ApiZl.getZlTime();
+            //触发点击事件
+            JavascriptExecutor cateSearchJs = (JavascriptExecutor) driver;
+            ZlReptileResumeSplit.searchItem(driver, cateSearchJs);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,9 +45,7 @@ public class ZlCrawlerResume {
         } finally {
             assert driver != null;
             driver.quit();
-            //关闭心跳
-            assert voidCompletableFuture != null;
-            ReptileResumeSplit.closeHeartBeat(voidCompletableFuture);
+
         }
 
 

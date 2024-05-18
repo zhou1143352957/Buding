@@ -11,7 +11,7 @@ import lombok.Data;
  * Copyright Ⓒ 2022 恒翔 Computer Corporation Limited All rights reserved.
  **/
 @Data
-public class ZlTimeVo {
+public class ZlTimeVO {
 
     /**
      * 开始 时间

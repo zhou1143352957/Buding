@@ -71,5 +71,10 @@ public class Virtual58DTO implements Serializable {
      */
     private String extraInfo;
 
+    /**
+     * 来源 1:python 2:uibot 3:java 4:油猴 5:app
+     */
+    private Integer source = 3;
+
 
 }

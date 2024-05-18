@@ -100,5 +100,10 @@ public interface UrlConstant {
      */
     String GET_VIRTUAL_ZL_TIME = BASE_URL + "/job-admin/common/config/configKey/virtual.zl.time";
 
-
+    /**
+     * 获取 智联 筛选头配置
+     * @param account 账号
+     *                get
+     */
+    String GET_CONFIG_ZL = BASE_URL + "/job-admin/virtual-config-zl/getConfigZl";
 }
