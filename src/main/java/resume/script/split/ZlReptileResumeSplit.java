@@ -11,6 +11,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.WheelInput;
 import resume.api.ApiZl;
 import resume.entity.dto.ZlVirtualConfigDTO;
+import resume.entity.vo.ZlIndexInfoVO;
 import resume.util.CommonUtil;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class ZlReptileResumeSplit {
             logger.info("账号名称：{}", userName);
             voidCompletableFuture = ReptileResumeSplit.openHeartBeat(userName, 2);
             //获取 当前智联币 和 今日剩余邀请投敌次数
-            ZlAppIndexSplit.getZlbAndSize(userName, appIndexWebDriver);
+            ZlIndexInfoVO zlbAndSize = ZlAppIndexSplit.getZlbAndSize(userName, appIndexWebDriver);
             //推荐人才
             ZlReferTalentsSplit.searchItem(userName, appIndexWebDriver, appIndexWebActions);
 
