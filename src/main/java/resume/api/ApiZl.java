@@ -111,5 +111,35 @@ public class ApiZl {
         return JSON.parseObject(responseInfo.getData().toString(), ZlVirtualConfigDTO.class);
     }
 
+    /**
+     * 保存打招呼次数,剩余智联币
+     *
+     * @param account     账号
+     * @param remainCoin  剩余智联币
+     * @param remainTimes 今日剩余邀请投递次数
+     * @author: 周杰
+     * @date: 2024/5/22
+     * @version: 1.0.0
+     */
+    public static void saveRemainTimes(String account, String remainCoin, String remainTimes) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
+        logger.info("账号:{} 剩余智联币:{} 今日剩余邀请投递次数:{}", account, remainCoin, remainTimes);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("account", account);
+        jsonObject.put("remainCoin", remainCoin);
+        jsonObject.put("remainTimes", remainTimes);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_REMAIN_TIMES);
+        // 设置请求头
+        request.body(jsonObject.toJSONString());
+        request.header("Content-Type", "application/json");
+        String body = request.execute().body();
+        var responseInfo = JSON.parseObject(body, ResponseInfo.class);
+        if (!responseInfo.isSuccess()) {
+            throw new BusinessException("保存打招呼次数,剩余智联币异常");
+        }
+    }
+
 
 }

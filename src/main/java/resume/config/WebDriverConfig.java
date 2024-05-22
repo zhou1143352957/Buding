@@ -31,7 +31,7 @@ public class WebDriverConfig {
         if (os.contains("windows")) {
             String defaultRelease = CommonUtil.defaultRelease("C:\\Users\\Administrator\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles");
             myprofile = new FirefoxProfile(new File(defaultRelease));
-            options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe");
+            options.setBinary("C:\\Program Files\\Mozilla Firefox\\ firefox.exe");
         } else {
             String defaultRelease = CommonUtil.defaultRelease("/Users/zhoujie/Library/Application Support/Firefox/Profiles");
             myprofile = new FirefoxProfile(new File(defaultRelease));

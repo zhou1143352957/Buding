@@ -102,8 +102,20 @@ public interface UrlConstant {
 
     /**
      * 获取 智联 筛选头配置
+     *
      * @param account 账号
-     *                get
+     * get
      */
     String GET_CONFIG_ZL = BASE_URL + "/job-admin/virtual-config-zl/getConfigZl";
+
+    /**
+     * 保存打招呼次数,剩余智联币
+     *
+     * @param account 账号
+     * @param remainCoin 剩余智联币
+     * @param remainTimes 今日剩余邀请投递次数
+     * post
+     */
+    String SAVE_REMAIN_TIMES = BASE_URL + "/job-admin/virtual-remain-times/saveRemainTimes";
+
 }
