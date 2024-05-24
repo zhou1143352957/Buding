@@ -34,17 +34,17 @@ public class ZlCrawlerResume {
             // 打开网页
             driver.get("https://www.zhaopin.com/");
             //获取智联时间段
-         //   ApiZl.getZlTime();
+            ApiZl.getZlTime();
             //触发点击事件
             JavascriptExecutor cateSearchJs = (JavascriptExecutor) driver;
             ZlReptileResumeSplit.searchItem(driver, cateSearchJs);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
-        }/* finally {
+        } finally {
             assert driver != null;
             driver.quit();
-        }*/
+        }
     }
 
 }

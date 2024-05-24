@@ -118,4 +118,17 @@ public interface UrlConstant {
      */
     String SAVE_REMAIN_TIMES = BASE_URL + "/job-admin/virtual-remain-times/saveRemainTimes";
 
+    /**
+     * 检测是否已经打过招呼
+     *
+     * @param account
+     * @param name
+     * @param basicInfo
+     * @param expectInfo
+     * @param accountType 1
+     * post
+     */
+    String CHECK_IS_GREETED = BASE_URL + "/job-hr/ent/resume-python/checkIsGreeted";
+
+
 }

@@ -142,4 +142,41 @@ public class ApiZl {
     }
 
 
+    /**
+     * 检测是否已经打过招呼
+     *
+     * @author: 周杰
+     * @date: 2024/5/23
+     * @version: 1.0.0
+     * @param account
+     * @param name
+     * @param basicInfo
+     * @param expectInfo
+     */
+    public static Boolean checkIsGreeted(String account, String name, String basicInfo, String expectInfo){
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
+
+        logger.info("account:{} , name:{},  basicInfo:{} , expectInfo:{}", account, name, basicInfo, expectInfo);
+
+        JSONObject param = new JSONObject();
+        param.put("accountType", 1);
+        param.put("account", account);
+        param.put("name", name);
+        param.put("basicInfo", basicInfo);
+        param.put("expectInfo", expectInfo);
+        HttpRequest request = HttpUtil.createPost(UrlConstant.CHECK_IS_GREETED);
+        // 设置请求头
+        request.body(param.toJSONString());
+        request.header("Content-Type", "application/json");
+        String body = request.execute().body();
+        var responseInfo = JSON.parseObject(body, ResponseInfo.class);
+        if (!responseInfo.isSuccess()) {
+            logger.error("检测是否已经打过招呼接口异常:{}", responseInfo.getMsg());
+            return false;
+        }
+        return true;
+    }
+
+
 }

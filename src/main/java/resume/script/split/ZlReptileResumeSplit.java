@@ -54,11 +54,20 @@ public class ZlReptileResumeSplit {
             voidCompletableFuture = ReptileResumeSplit.openHeartBeat(userName, 2);
             //获取 当前智联币 和 今日剩余邀请投敌次数
             ZlIndexInfoVO zlbAndSize = ZlAppIndexSplit.getZlbAndSize(userName, appIndexWebDriver);
-            //推荐人才
-            ZlReferTalentsSplit.searchItem(userName, appIndexWebDriver, appIndexWebActions);
 
-            //搜索人才
-         //   appSearchResume(userName, appIndexWebDriver, appIndexWebActions);
+            //获取账号配置信息
+            ZlVirtualConfigDTO zlVirtualConfigDTO = ApiZl.ziConfig(userName);
+            if (ValidatorUtil.isNull(zlVirtualConfigDTO.getContent())) {
+                return;
+            }
+            // 脚本类型1->推荐人才，2->搜索人才
+            if (zlVirtualConfigDTO.getType().equals(1)) {
+                //推荐人才
+                ZlReferTalentsSplit.searchItem(zlVirtualConfigDTO, appIndexWebDriver, appIndexWebActions, zlbAndSize, cateSearchJs);
+            } else {
+                //搜索人才
+                appSearchResume(zlVirtualConfigDTO, appIndexWebDriver, appIndexWebActions);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,12 +163,7 @@ public class ZlReptileResumeSplit {
      * @date: 2024/5/20
      * @version: 1.0.0
      */
-    public static void appSearchResume(String account, WebDriver driver, Actions appIndexWebActions) throws InterruptedException {
-        //获取账号配置信息
-        ZlVirtualConfigDTO zlVirtualConfigDTO = ApiZl.ziConfig(account);
-        if (ValidatorUtil.isNull(zlVirtualConfigDTO.getContent())) {
-            return;
-        }
+    public static void appSearchResume(ZlVirtualConfigDTO zlVirtualConfigDTO, WebDriver driver, Actions appIndexWebActions) throws InterruptedException {
         List<WebElement> appNavItems = driver.findElements(By.className("app-nav__item"));
         appIndexWebActions.pause(CommonUtil.getRandom()).moveToElement(appNavItems.get(3)).pause(CommonUtil.getRandom()).click().perform();
         sleep(CommonUtil.getRandomMillisecond());
@@ -216,8 +220,6 @@ public class ZlReptileResumeSplit {
         getAgeInput(driver, ageMax, appIndexWebActions, 2);
 
 
-
-
     }
 
     /**
@@ -227,7 +229,7 @@ public class ZlReptileResumeSplit {
         List<WebElement> kmScrollbarViews = driver.findElements(By.className("km-scrollbar__view"));
         WebElement kmScrollbarView = kmScrollbarViews.get(index);
         List<WebElement> startKmAgeOptions = kmScrollbarView.findElements(By.className("km-option"));
-        if (Integer.parseInt(age) >= 44){
+        if (Integer.parseInt(age) >= 44) {
             for (WebElement startOrEndAge : startKmAgeOptions) {
                 if (!startOrEndAge.getText().contains(age)) {
                     continue;
