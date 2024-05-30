@@ -61,13 +61,17 @@ public class ZlReptileResumeSplit {
                 return;
             }
             // 脚本类型1->推荐人才，2->搜索人才
-            if (zlVirtualConfigDTO.getType().equals(1)) {
+          /*  if (zlVirtualConfigDTO.getType().equals(1)) {
                 //推荐人才
                 ZlReferTalentsSplit.searchItem(zlVirtualConfigDTO, appIndexWebDriver, appIndexWebActions, zlbAndSize, cateSearchJs);
             } else {
                 //搜索人才
                 appSearchResume(zlVirtualConfigDTO, appIndexWebDriver, appIndexWebActions);
             }
+            //聊天功能
+            ZlChatSplit.zlChatIm(appIndexWebDriver, appIndexWebActions, cateSearchJs);*/
+            //人才管理
+            CandicateSplit.candicate(driver, cateSearchJs, appIndexWebActions);
 
         } catch (Exception e) {
             e.printStackTrace();

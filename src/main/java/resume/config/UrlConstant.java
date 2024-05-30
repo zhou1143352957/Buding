@@ -11,6 +11,7 @@ package resume.config;
 public interface UrlConstant {
 
     String BASE_URL = BaseConfig.testUrl;
+  //  String BASE_URL = BaseConfig.onlineUrl;
 
     /**
      * python调用查询58账号配置的筛选条件

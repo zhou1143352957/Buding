@@ -504,7 +504,7 @@ public class CommonUtil {
      * 随机毫秒
      */
     public static Long getRandomMillisecond() {
-        return ThreadLocalRandom.current().nextLong(4, 9) * 1000;
+        return ThreadLocalRandom.current().nextLong(5, 9) * 1000;
     }
 
     /**
