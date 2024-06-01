@@ -132,4 +132,12 @@ public interface UrlConstant {
     String CHECK_IS_GREETED = BASE_URL + "/job-hr/ent/resume-python/checkIsGreeted";
 
 
+    /**
+     * 智联添加简历信息
+     */
+    String SAVE_BY_ZHI_LIAN = BASE_URL + "/job-hr/ent/resume-python/saveByzhilian";
+
+
+
+
 }

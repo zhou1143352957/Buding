@@ -71,7 +71,7 @@ public class ZlReptileResumeSplit {
             //聊天功能
             ZlChatSplit.zlChatIm(appIndexWebDriver, appIndexWebActions, cateSearchJs);*/
             //人才管理
-            CandicateSplit.candicate(driver, cateSearchJs, appIndexWebActions);
+            CandicateSplit.candicate(driver, cateSearchJs, appIndexWebActions, zlVirtualConfigDTO);
 
         } catch (Exception e) {
             e.printStackTrace();
