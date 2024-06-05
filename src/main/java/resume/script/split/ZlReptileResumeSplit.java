@@ -134,7 +134,7 @@ public class ZlReptileResumeSplit {
         String appIndexOriginalWindow = appIndexWebDriver.getWindowHandle();
         WebElement accountEntry = appIndexWebDriver.findElement(By.className("account-entry"));
         appIndexWebActions.moveToElement(accountEntry).pause(CommonUtil.getRandom()).perform();
-        sleep(CommonUtil.getRandomMillisecond());
+        sleep(CommonUtil.getRandomMillisecond(12, 15));
 
         List<WebElement> kmPopoverInners = appIndexWebDriver.findElements(By.className("km-popover__inner"));
         if (kmPopoverInners.isEmpty()) {

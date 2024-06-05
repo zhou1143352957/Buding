@@ -11,6 +11,7 @@ import com.sun.tools.javac.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import resume.config.UrlConstant;
+import resume.entity.dto.ResumePythonDTO;
 import resume.entity.dto.ZlVirtualConfigDTO;
 import resume.entity.vo.ZlTimeVO;
 import resume.script.split.ApiRetryMechanism;
@@ -145,15 +146,15 @@ public class ApiZl {
     /**
      * 检测是否已经打过招呼
      *
-     * @author: 周杰
-     * @date: 2024/5/23
-     * @version: 1.0.0
      * @param account
      * @param name
      * @param basicInfo
      * @param expectInfo
+     * @author: 周杰
+     * @date: 2024/5/23
+     * @version: 1.0.0
      */
-    public static Boolean checkIsGreeted(String account, String name, String basicInfo, String expectInfo){
+    public static Boolean checkIsGreeted(String account, String name, String basicInfo, String expectInfo) {
         //验证接口是否异常
         ApiRetryMechanism.callApiWithRetry();
 
@@ -182,7 +183,22 @@ public class ApiZl {
     /**
      * 智联添加简历信息
      */
+    public static void saveByzhilian(ResumePythonDTO resumePythonDTO) {
+        //验证接口是否异常
+        ApiRetryMechanism.callApiWithRetry();
 
+        String resumePythonDTOJson = JSON.toJSONString(resumePythonDTO);
+
+        HttpRequest request = HttpUtil.createPost(UrlConstant.SAVE_BY_ZHI_LIAN);
+        // 设置请求头
+        request.body(resumePythonDTOJson);
+        request.header("Content-Type", "application/json");
+        String body = request.execute().body();
+        var responseInfo = JSON.parseObject(body, ResponseInfo.class);
+        if (!responseInfo.isSuccess()) {
+            logger.error("智联添加简历信息接口异常:{}", responseInfo.getMsg());
+        }
+    }
 
 
 }

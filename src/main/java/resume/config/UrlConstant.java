@@ -134,6 +134,7 @@ public interface UrlConstant {
 
     /**
      * 智联添加简历信息
+     * @param 
      */
     String SAVE_BY_ZHI_LIAN = BASE_URL + "/job-hr/ent/resume-python/saveByzhilian";
 

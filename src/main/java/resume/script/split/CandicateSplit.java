@@ -1,17 +1,19 @@
 package resume.script.split;
 
+import com.alibaba.fastjson.JSON;
 import com.sun.tools.javac.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import resume.api.ApiZl;
+import resume.entity.dto.ResumePythonDTO;
 import resume.entity.dto.ZlVirtualConfigDTO;
 import resume.util.CommonUtil;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.Thread.sleep;
 
@@ -70,16 +72,26 @@ public class CandicateSplit {
         logger.info("------有电话的人才数量------:{}个", number.getText());
 
         // 视图类型
-        Integer viewType = (Integer) (cateSearchJs.executeScript("if (document.getElementsByClassName(\"candidate-view-type\")[0].getElementsByTagName(\"label\")[0].classList.contains(\"km-radio--checked\")) {" +
+        Integer viewType = Integer.valueOf((cateSearchJs.executeScript("if (document.getElementsByClassName(\"candidate-view-type\")[0].getElementsByTagName(\"label\")[0].classList.contains(\"km-radio--checked\")) {" +
                 "                    return 1" +
                 "                } else {" +
                 "                    return 2" +
-                "                }"));
+                "                }")).toString());
+
+        Set<String> phoneSet = new HashSet<>();
+        int size = Integer.parseInt(number.getText());
+        //当前点击到的简历数量
+        int locationSize = 1;
+        //预留10个打招呼次数，用于人工操作
+        int page = 1;
 
         //简历列表
         while (true) {
             List<WebElement> resumeListInners;
             if (viewType.equals(1)) {
+                if (page == 1) {
+                    appIndexWebActions.scrollByAmount(0, 87).perform();
+                }
                 resumeListInners = driver.findElements(By.className("resume-list__inner"));
             } else {
                 resumeListInners = driver.findElements(By.className("resume-table-item"));
@@ -87,28 +99,72 @@ public class CandicateSplit {
             if (resumeListInners.isEmpty()) {
                 return;
             }
+            int y;
             for (int i = 0; i < resumeListInners.size(); i++) {
                 WebElement resume = resumeListInners.get(i);
+
+                locationSize++;
+                Dimension dimension = resume.getSize();
+                y = dimension.getHeight();
                 //点击简历
                 appIndexWebActions.moveToElement(resume).click().perform();
-                sleep(CommonUtil.getRandomMillisecond());
+                sleep(CommonUtil.getRandomMillisecond(7, 9));
+
+                if (driver.findElements(By.cssSelector("div.has-text > div:nth-child(2)")).isEmpty()) {
+                    appIndexWebActions.scrollByAmount(0, y).perform();
+                    continue;
+                }
 
                 //获取电话
-                WebElement resumeTel = resume.findElement(By.cssSelector("div.has-text > div:nth-child(2)"));
-                if (resumeTel.getText().matches("\\\\d+")) {
-                    logger.info("------电话------:{}", resumeTel.getText());
+                String resumeTel = driver.findElement(By.cssSelector("div.has-text > div:nth-child(2)")).getText();
+                logger.info("------电话------:{}", resumeTel);
+                if (!resumeTel.matches("\\\\d+")) {
+                    //关闭个人简历
+                    driver.findElement(By.cssSelector(".km-modal--open > div:nth-child(1) > button:nth-child(2) > div:nth-child(1)")).click();
+                    appIndexWebActions.scrollByAmount(0, y).perform();
+                    continue;
+                }
+                if (phoneSet.contains(resumeTel)) {
+                    driver.findElement(By.cssSelector(".km-modal--open > div:nth-child(1) > button:nth-child(2) > div:nth-child(1)")).click();
+                    appIndexWebActions.scrollByAmount(0, y).perform();
+                    continue;
                 }
                 String resumeInfo = (String) (cateSearchJs.executeScript(getResumeInfoJs()));
                 //调用人才伯乐接口
+                ResumePythonDTO resumePythonDTO = JSON.parseObject(resumeInfo, ResumePythonDTO.class);
+                resumePythonDTO.setPhone(resumeTel);
+                resumePythonDTO.setEnterpriseId(zlVirtualConfigDTO.getHrEnterpriseId());
+                resumePythonDTO.setAccountName(zlVirtualConfigDTO.getAccount());
+                ApiZl.saveByzhilian(resumePythonDTO);
+                phoneSet.add(resumeTel);
+                sleep(CommonUtil.getRandomMillisecond());
 
-
+                //关闭个人简历
+                driver.findElement(By.cssSelector(".km-modal--open > div:nth-child(1) > button:nth-child(2) > div:nth-child(1)")).click();
+                sleep(CommonUtil.getRandomMillisecond(3, 5));
+                appIndexWebActions.scrollByAmount(0, y).perform();
+                sleep(CommonUtil.getRandomMillisecond());
             }
+            //每次结束减去20条
+            //分页点击处理
+            WebElement kmPaginationPagers = driver.findElement(By.className("km-pagination__pagers"));
+            List<WebElement> kmPaginationPagerArrows = kmPaginationPagers.findElements(By.className("km-pagination__pager--arrow"));
+            if (kmPaginationPagerArrows.isEmpty()) {
+                return;
+            }
+            if (size <= locationSize) {
+                logger.info("------已经到底啦------");
+                return;
+            }
+            appIndexWebActions.moveToElement(kmPaginationPagerArrows.get(1)).click().perform();
+            sleep(CommonUtil.getRandomMillisecond());
+            page++;
 
         }
     }
 
 
-    private static String getResumeInfoJs(){
+    private static String getResumeInfoJs() {
         return "var obj = {}" +
                 "                            obj.name = document.getElementsByClassName(\"resume-basic__name\")[0].innerText" +
                 "                            var todayActive = document.getElementsByClassName(\"resume-basic__state\")[0].innerText" +
@@ -130,7 +186,7 @@ public class CandicateSplit {
                 "                            var object = {}" +
                 "                            for (var i=0; i<content_len; i++) {" +
                 "                                var title = document.getElementsByClassName(\"resume-content\")[0].children[i].getElementsByClassName(\"resume-content__title\")[0].innerText" +
-                "                                var body = document.getElementsByClassName(\"resume-content\")[0].children[i].getElementsByClassName(\"resume-content__body\")[0].innerText" +
+                "                                var body = document.getElementsByClassName(\"resume-content\")[0].children[i].getElementsByClassName(\"resume-con tent__body\")[0].innerText" +
                 "                                if (title == \"求职意向\" || title == \"求职期望\") {" +
                 "                                    var params = []" +
                 "                                    var exp = document.getElementsByClassName(\"resume-content\")[0].children[i].getElementsByClassName(\"resume-content__body\")[0].children" +
@@ -210,8 +266,6 @@ public class CandicateSplit {
                 "                            obj.content = JSON.stringify(object)" +
                 "                            return obj";
     }
-
-
 
 
 }
