@@ -41,7 +41,7 @@ public class ZlCrawlerResume {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(e.getMessage());
-        } /*finally {
+        }/* finally {
             assert driver != null;
             driver.quit();
         }*/
