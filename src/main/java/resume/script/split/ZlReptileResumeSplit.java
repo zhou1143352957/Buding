@@ -185,10 +185,10 @@ public class ZlReptileResumeSplit {
             return;
         }
         logger.info("------今日可用剩余{}次------", totalSize);
+
         //筛选条件设置
-        searchSetting(zlVirtualConfigDTO, driver, appIndexWebActions, cateSearchJs);
-        //简历列表爬取
-        getResumeList(driver, appIndexWebActions, cateSearchJs);
+        searchSetting(zlVirtualConfigDTO, driver, appIndexWebActions, cateSearchJs, zlbAndSize);
+
 
     }
 
@@ -196,8 +196,18 @@ public class ZlReptileResumeSplit {
     /**
      * 筛选条件配置
      */
-    private static void searchSetting(ZlVirtualConfigDTO zlVirtualConfigDTO, WebDriver driver, Actions appIndexWebActions, JavascriptExecutor cateSearchJs) throws InterruptedException {
+    private static void searchSetting(ZlVirtualConfigDTO zlVirtualConfigDTO, WebDriver driver, Actions appIndexWebActions, JavascriptExecutor cateSearchJs, ZlIndexInfoVO zlbAndSize) throws InterruptedException {
         JSONArray contentJsonArray = JSON.parseArray(zlVirtualConfigDTO.getContent());
+        logger.info("------配置搜索条件{}个------", contentJsonArray);
+
+        int eachTimes = Integer.parseInt(zlbAndSize.getSize()) / contentJsonArray.size();
+        logger.info("------平均可用{}次------", eachTimes);
+
+        if (eachTimes == 0) {
+            return;
+        }
+
+        int thisTimes = eachTimes;
         for (int a = 0; a < contentJsonArray.size(); a++) {
             JSONObject contentJsonObject = contentJsonArray.getJSONObject(a);
 
@@ -433,20 +443,148 @@ public class ZlReptileResumeSplit {
                 cateSearchJs.executeScript("document.getElementsByClassName(\"keyword-panel__input\")[0].getElementsByTagName(\"button\")[0].click()");
                 sleep(CommonUtil.getRandomMillisecond());
             }
+
+            //简历列表爬取
+            getResumeList(driver, appIndexWebActions, cateSearchJs, zlVirtualConfigDTO.getAccount(), contentJsonObject.getString("job_name"), thisTimes);
         }
     }
 
     /**
      * 获取简历列表
      */
-    private static void getResumeList(WebDriver driver, Actions actions, JavascriptExecutor js) {
-        Integer resumeSize = (Integer) js.executeScript("return document.getElementsByClassName(\"search-resume-list\").length");
-        if (resumeSize.equals(0)){
+    private static void getResumeList(WebDriver driver, Actions actions, JavascriptExecutor js, String account, String jobName, int thisTimes) throws InterruptedException {
+        Long resumeSize = (Long) js.executeScript("return document.getElementsByClassName(\"search-resume-list\").length");
+        if (resumeSize.equals(0L)) {
             logger.info("------没有符合条件的人才------");
             return;
         }
-        
+        //剩余投递次数
+        for (int i = 0; i < 50; i++) {
+            if (thisTimes < 10) {
+                return;
+            }
 
+            logger.info("------第{}页------", i + 1);
+            //简历数量
+            Integer resumeNum = Integer.valueOf(js.executeScript("return document.getElementsByClassName(\"search-resume-list\")[0].children.length") + "");
+            for (int j = 0; j < resumeNum; j++) {
+                //您对本次搜索的结果还满意吗
+                if (!driver.findElements(By.className("job-questionnaire__title")).isEmpty()) {
+                    return;
+                }
+
+                String ageText = js.executeScript("var resume_child = document.getElementsByClassName(\"search-resume-list\")[0].children[" + j + "]" +
+                        "                                if (resume_child.getElementsByClassName(\"talent-basic-info__basic\").length > 0" +
+                        "                                        && resume_child.getElementsByClassName(\"talent-basic-info__basic\")[0].children.length > 0) {" +
+                        "                                    return resume_child.getElementsByClassName(\"talent-basic-info__basic\")[0].children[0].innerText" +
+                        "                                }") + "";
+
+                if (ageText.contains("岁")) {
+                    ageText = ageText.replace("岁", "");
+                }
+                if (ageText.matches("\\d+") && Integer.parseInt(ageText) < 18) {
+                    continue;
+                }
+                //简历名称
+                String basicInfoName = js.executeScript("return document.getElementsByClassName(\"search-resume-list\")[0].children[%d]." +
+                        "                                getElementsByClassName(\"talent-basic-info__name--inner\")[0].innerText") + "";
+                String basicInfo = js.executeScript("return document.getElementsByClassName(\"search-resume-list\")[0].children[%d]." +
+                        "                                getElementsByClassName(\"talent-basic-info__basic\")[0].innerText") + "";
+                String expectInfo = js.executeScript("return document.getElementsByClassName(\"search-resume-list\")[0].children[%d]." +
+                        "                                getElementsByClassName(\"talent-basic-info__extra\")[0].innerText") + "";
+                Boolean isGreeted = ApiZl.checkIsGreeted(account, basicInfoName, basicInfo, expectInfo);
+                if (!isGreeted) {
+                    continue;
+                }
+                //打招呼（邀请投递）
+                js.executeScript(" var resume_btn = document.getElementsByClassName(\"search-resume-list\")[0].children[" + j + "].getElementsByClassName(\"resume-btn-small\")" +
+                        "                                for (var i=0; i<resume_btn.length; i++) {" +
+                        "                                    if (resume_btn[i].innerText == \"邀请投递\" || resume_btn[i].innerText == \"打招呼\") {" +
+                        "                                        resume_btn[i].getElementsByClassName(\"resume-btn-small__icon\")[0].click()" +
+                        "                                    }" +
+                        "                                }");
+
+                sleep(CommonUtil.getRandomMillisecond());
+
+                //设置默认招呼语
+                String greet = js.executeScript("if (document.getElementsByClassName(\"chat-set-greet\").length > 0" +
+                        "                                        && document.getElementsByClassName(\"chat-set-greet\")[0].getElementsByClassName(\"km-button--filled\").length > 0) {" +
+                        "                                    document.getElementsByClassName(\"chat-set-greet\")[0].getElementsByClassName(\"km-button--filled\")[0].click()" +
+                        "                                    return \"greet\"" +
+                        "                                }") + "";
+                if ("greet".equals(greet)) {
+                    sleep(CommonUtil.getRandomMillisecond());
+                }
+                //选择沟通职位
+                String maxChat = js.executeScript("return document.getElementsByClassName(\"resume-buttons-chat\").length - 1") + "";
+
+                js.executeScript(" document.getElementsByClassName(\"resume-buttons-chat\")[" + maxChat + "].getElementsByClassName(\"km-input__original\")[0].click()");
+                sleep(CommonUtil.getRandomMillisecond());
+
+                List<String> itemArr = (List<String>) js.executeScript("var item = []" +
+                        "                                var option = document.getElementsByClassName(\"jsn-job-selector__option\")" +
+                        "                                for (var i=0; i<option.length; i++) {" +
+                        "                                    if (option[i].style.display != 'none') {" +
+                        "                                        item.push(option[i].getElementsByClassName(\"jsn-job-selector__option--title\")[0].innerText)" +
+                        "                                    }" +
+                        "                                }" +
+                        "                                return item");
+
+                int num = 1;
+                if (itemArr.contains(jobName)) {
+                    num = itemArr.indexOf(jobName) + 1;
+                }
+                // 鼠标悬停到目标职位选项并点击
+                WebElement hoverElement = driver.findElements(By.className("jsn-job-selector__option")).get(num);
+                actions.moveToElement(hoverElement).perform();
+                sleep(CommonUtil.getRandomMillisecond());
+
+                js.executeScript("document.getElementsByClassName('jsn-job-selector__option')[" + num + "].click();");
+                sleep(CommonUtil.getRandomMillisecond());
+
+                // 点击确认按钮
+                js.executeScript(
+                        "document.getElementsByClassName('resume-buttons-chat')[" + maxChat + "].getElementsByClassName('km-modal__footer')[0].getElementsByClassName('km-button--primary')[0].click();"
+                );
+                sleep(CommonUtil.getRandomMillisecond());
+
+                // 关闭已发送弹窗
+                js.executeScript(
+                        "if (document.getElementsByClassName('set-greet-success-modal').length > 0" +
+                                "        && document.getElementsByClassName('set-greet-success-modal')[0].getElementsByClassName('km-modal__close-btn').length > 0) {" +
+                                "    document.getElementsByClassName('set-greet-success-modal')[0].getElementsByClassName('km-modal__close-btn')[0].click();" +
+                                "}"
+                );
+
+                // 今日次数-1
+                thisTimes--;
+                if (thisTimes == 0) {
+                    break;
+                }
+
+            }
+            if (thisTimes == 0) {
+                logger.info("------今日次数已用完------");
+                break;
+            }
+            // 翻页处理
+            String res = (String) js.executeScript(
+                    "if (document.getElementsByClassName('km-pagination__pager--arrow').length > 1" +
+                            "        && document.getElementsByClassName('km-pagination__pager--arrow')[1].getAttribute('disabled') == null) {" +
+                            "    document.getElementsByClassName('km-pagination__pager--arrow')[1].click();" +
+                            "} else {" +
+                            "    return 'stop';" +
+                            "}"
+            );
+            sleep(CommonUtil.getRandomMillisecond());
+            if ("stop".equals(res)) {
+                driver.navigate().refresh();
+                sleep(CommonUtil.getRandomMillisecond());
+                logger.info("------已经到底啦------");
+                break;
+            }
+
+        }
 
     }
 

@@ -73,10 +73,12 @@ public class ZlChatSplit {
         sleep(CommonUtil.getRandomMillisecond());
 
         //当前选中的
-        List<WebElement> isActives = driver.findElements(By.className("is-active"));
-        if (!isActives.isEmpty()) {
-            WebElement kmListItemDescription = isActives.get(0).findElement(By.className("km-list-item__description"));
-            String activeDescription = kmListItemDescription.getText();
+        Long isActive = (Long) cateSearchJs.executeScript("return document.getElementsByClassName(\"im-session-item km-list__item is-active\").length");
+        if (isActive.equals(1L)) {
+            String activeDescription = cateSearchJs.executeScript("if (document.getElementsByClassName(\"im-session-item km-list__item is-active\")[0].getElementsByClassName(\"km-list-item__description\").length > 0) {\n" +
+                    "                        return document.getElementsByClassName(\"im-session-item km-list__item is-active\")[0].getElementsByClassName(\"km-list-item__description\")[0].innerText\n" +
+                    "                    }") + "";
+
             if (activeDescription.contains("智联送您免费电话券") || activeDescription.contains("[人才推荐]")) {
                 logger.info("------系统发送的消息------");
             } else {

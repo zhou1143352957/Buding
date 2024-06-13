@@ -41,31 +41,29 @@ public class CandicateSplit {
         sleep(CommonUtil.getRandomMillisecond());
 
         //人才来源
-        WebElement sourceSelector = driver.findElement(By.className("source-selector"));
-        appIndexWebActions.moveToElement(sourceSelector).click().perform();
+        cateSearchJs.executeScript("document.getElementsByClassName(\"source-selector\")[0].click()");
         sleep(CommonUtil.getRandomMillisecond());
         //点击投递
-        List<WebElement> kmSelectDropdowns = driver.findElements(By.className("km-select__dropdown"));
-        if (!kmSelectDropdowns.isEmpty()) {
-            WebElement kmSelectDropdown = kmSelectDropdowns.get(0);
-            //人才来源下拉框 选择列表
-            List<WebElement> conditionSelectorItemLabels = kmSelectDropdown.findElements(By.className("condition-selector__item-label"));
-            appIndexWebActions.moveToElement(conditionSelectorItemLabels.get(1)).click().perform();
-            sleep(CommonUtil.getRandomMillisecond(3, 5));
-            //点击确定
-            WebElement conditionSelectorFooter = driver.findElement(By.className("condition-selector__footer"));
-            List<WebElement> kmButtions = conditionSelectorFooter.findElements(By.className("km-button"));
-            appIndexWebActions.moveToElement(kmButtions.get(1)).click().perform();
-            sleep(CommonUtil.getRandomMillisecond());
-        }
-
-        //联系方式
-        WebElement contactSelector = driver.findElement(By.className("contact-selector"));
-        appIndexWebActions.moveToElement(contactSelector).click().perform();
+        cateSearchJs.executeScript(" if (document.getElementsByClassName(\"km-select__dropdown\").length > 0" +
+                "                            && document.getElementsByClassName(\"km-select__dropdown\")[0].getElementsByClassName(\"condition-selector__item\").length > 1) {" +
+                "                        document.getElementsByClassName(\"km-select__dropdown\")[0].getElementsByClassName(\"condition-selector__item\")[1].click()" +
+                "                    }");
         sleep(CommonUtil.getRandomMillisecond());
 
-        WebElement tel = driver.findElement(By.cssSelector("div.km-popover:nth-child(35) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > a:nth-child(2)"));
-        appIndexWebActions.moveToElement(tel).click().perform();
+        cateSearchJs.executeScript("if (document.getElementsByClassName(\"km-select__dropdown\").length > 0" +
+                "                            && document.getElementsByClassName(\"km-select__dropdown\")[0].getElementsByClassName(\"km-button--filled\").length > 0) {" +
+                "                        document.getElementsByClassName(\"km-select__dropdown\")[0].getElementsByClassName(\"km-button--filled\")[0].click()" +
+                "                    }");
+        sleep(CommonUtil.getRandomMillisecond());
+
+        //联系方式
+        cateSearchJs.executeScript("document.getElementsByClassName(\"contact-selector\")[0].click()");
+        sleep(CommonUtil.getRandomMillisecond());
+
+        cateSearchJs.executeScript("if (document.getElementsByClassName(\"km-select__dropdown\").length > 1" +
+                "                            && document.getElementsByClassName(\"km-select__dropdown\")[1].getElementsByClassName(\"condition-selector__item\").length > 1) {" +
+                "                        document.getElementsByClassName(\"km-select__dropdown\")[1].getElementsByClassName(\"condition-selector__item\")[1].click()" +
+                "                    }");
         sleep(CommonUtil.getRandomMillisecond());
         //有电话的人才数量
         WebElement number = driver.findElement(By.className("number"));
@@ -107,7 +105,11 @@ public class CandicateSplit {
                 Dimension dimension = resume.getSize();
                 y = dimension.getHeight();
                 //点击简历
-                appIndexWebActions.moveToElement(resume).click().perform();
+                if (viewType.equals(1)) {
+                    cateSearchJs.executeScript("document.getElementsByClassName(\"resume-list__inner\")[" + i + "].getElementsByClassName(\"resume-item__left\")[0].click()");
+                } else {
+                    cateSearchJs.executeScript(" document.getElementsByClassName(\"resume-table-item\")[" + i + "].getElementsByClassName(\"resume-table-item__name\")[0].click()");
+                }
                 sleep(CommonUtil.getRandomMillisecond(7, 9));
 
                 if (driver.findElements(By.cssSelector("div.has-text > div:nth-child(2)")).isEmpty()) {
